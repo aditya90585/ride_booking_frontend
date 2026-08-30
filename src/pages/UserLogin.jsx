@@ -1,49 +1,24 @@
 import { useState } from "react";
-
-
 import {
   Eye,
   EyeOff,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+
 import { MdEmail, MdLock } from "react-icons/md";
-import { RiUserAddLine } from "react-icons/ri";
 
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-
-
-function getStrength(p) {
-  if (!p) return 0;
-
-  let s = 0;
-
-  if (p.length >= 8) s++;
-  if (/[A-Z]/.test(p)) s++;
-  if (/[0-9]/.test(p)) s++;
-  if (/[^A-Za-z0-9]/.test(p)) s++;
-
-  return s;
-}
-
-
-const STRENGTH_META = [
-  null,
-  { label: "Weak", cls: "bg-red-600 text-red-600" },
-  { label: "Fair", cls: "bg-amber-600 text-amber-600" },
-  { label: "Good", cls: "bg-blue-500 text-blue-500" },
-  { label: "Strong", cls: "bg-emerald-600 text-emerald-600" },
-];
+import {  useNavigate, Link } from "react-router-dom";
+import logoWithText from "../assets/logoWithText.png"
+import axiosInstance from "../lib/axios";
 
 
 const UserLogin = () => {
   const navigate = useNavigate()
-  const location = useLocation();
 
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,7 +26,6 @@ const UserLogin = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({
     mode: "onTouched",
@@ -62,28 +36,21 @@ const UserLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("/user/register", {
-        name: data.name,
+      const res = await axiosInstance.post("/user/login", {
         email: data.email,
         password: data.password,
       });
 
 
+      toast.success("User Login successfully!");
 
-      toast.success("Account created successfully!");
 
-
-      navigate(
-        location.state?.from || "/",
-        {
-          replace: true,
-        }
-      );
+      navigate("/home");
 
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-        "Signup failed. Try again."
+        "Signin failed. Try again."
       );
     } finally {
       setLoading(false);
@@ -188,39 +155,10 @@ const UserLogin = () => {
 
           {/* Brand */}
 
-          <div className="mb-8 flex items-center gap-[11px]">
-
-            <div
-              className="
-                                flex
-                                h-11
-                                w-11
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                bg-gradient-to-br
-                                from-violet-700
-                                to-violet-400
-                                text-white
-                                shadow-[0_4px_14px_rgba(109,40,217,0.22)]
-                            "
-            >
-              <RiUserAddLine size={22} />
-            </div>
-
-            <span
-              className="
-                                font-['Playfair_Display']
-                                text-xl
-                                italic
-                                tracking-[-0.01em]
-                                text-[#1c1033]
-                            "
-            >
-              Ridevy
-            </span>
-
+          <div className="mb-8 h-10 w-auto">
+            <Link to="/">
+            <img src={logoWithText} className="h-full w-auto" alt="logo" />
+             </Link>
           </div>
 
 
@@ -239,7 +177,7 @@ const UserLogin = () => {
                                 text-[#1c1033]
                             "
             >
-              Login
+              User Login
             </h1>
 
           </div>
@@ -307,10 +245,11 @@ const UserLogin = () => {
                                         outline-none
                                         transition
                                         placeholder:text-[#c9c3de]
+                                      selection:bg-white
                                         placeholder:font-normal
-                                        focus:border-violet-700
+                                        focus:border-[#ffb508]
                                         focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
                                         ${errors.email
                       ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
                       : "border-[#e4e0f0]"
@@ -375,8 +314,8 @@ const UserLogin = () => {
                   <input
                     id="login-pass"
                     type={showPass ? "text" : "password"}
-                    placeholder="Min. 8 characters"
-                    autoComplete="new-password"
+                    placeholder="Enter password"
+                    autoComplete="current-password"
                     className={`
                                         w-full
                                         rounded-xl
@@ -394,9 +333,9 @@ const UserLogin = () => {
                                         transition
                                         placeholder:text-[#c9c3de]
                                         placeholder:font-normal
-                                        focus:border-violet-700
+                                        focus:border-[#ffb508]
                                         focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
                                         ${errors.password
                         ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
                         : "border-[#e4e0f0]"
@@ -405,19 +344,11 @@ const UserLogin = () => {
                     {...register("password", {
                       required: "Password is required",
                       minLength: {
-                        value: 8,
+                        value: 6,
                         message:
-                          "Password must be at least 8 characters",
+                          "Password must be at least 6 characters",
                       },
-                      validate: {
-                        hasUpper: (v) =>
-                          /[A-Z]/.test(v) ||
-                          "Password must contain an uppercase letter",
 
-                        hasNumber: (v) =>
-                          /[0-9]/.test(v) ||
-                          "Password must contain a number",
-                      },
                     })}
                   />
 
@@ -455,10 +386,10 @@ const UserLogin = () => {
                   </span>
                 )}
 
-                
+
               </div>
 
-              
+
 
             </div>
 
@@ -476,8 +407,8 @@ const UserLogin = () => {
                                 rounded-xl
                                 border-0
                                 bg-gradient-to-br
-                                from-violet-700
-                                to-violet-500
+                                from-[#FDC903]
+                                to-[#F67A09]
                                 px-7
                                 py-[15px]
                                 font-['Nunito']
@@ -489,7 +420,7 @@ const UserLogin = () => {
                                 transition
                                 hover:-translate-y-0.5
                                 hover:brightness-110
-                                hover:shadow-[0_8px_30px_rgba(109,40,217,0.45)]
+                                hover:shadow-[0_8px_30px_rgba(255,181,8,0.5)]
                                 active:translate-y-0
                                 disabled:cursor-not-allowed
                                 disabled:opacity-70
@@ -498,23 +429,50 @@ const UserLogin = () => {
               disabled={loading}
             >
 
-              {loading
-                ? "Login..."
-                : "Login"}
-
-              <span
-                className="
+              {loading ? <Loader2 className=" animate-spin" /> : "Sign In"}
+              {!loading &&
+                <span
+                  className="
                                     transition-transform
                                     group-hover:translate-x-1
                                 "
-              >
-                <ArrowRight
-                  size={17}
-                  strokeWidth={2.5}
-                />
-              </span>
+                >
+                  <ArrowRight
+                    size={17}
+                    strokeWidth={2.5}
+                  />
+                </span>
+              }
 
             </button>
+
+            <p
+              className="
+                                m-0
+                                text-center
+                                font-['Nunito']
+                                text-[13.5px]
+                                text-[#6b7280]
+                            "
+            >
+              Doesn't have an account?
+
+              <Link
+                to="/signup"
+                className="
+                                    ml-[3px]
+                                    font-bold
+                                    text-[#F67A09]
+                                    no-underline
+                                    transition
+                                    hover:opacity-75
+                                    hover:underline
+                                "
+              >
+                Sign up
+              </Link>
+
+            </p>
 
 
             {/* Divider */}
@@ -537,7 +495,7 @@ const UserLogin = () => {
                                     font-medium
                                 "
               >
-                or continue with
+                Continue as captain
               </span>
 
               <span className="h-px flex-1 bg-[#e4e0f0]" />
@@ -549,103 +507,68 @@ const UserLogin = () => {
 
             <div className="grid grid-cols-2 gap-3">
 
-              <button
-                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    rounded-xl
-                                    border-[1.5px]
-                                    border-[#e4e0f0]
-                                    bg-white
-                                    px-4
-                                    py-[11px]
-                                    font-['Nunito']
-                                    text-[13px]
-                                    font-semibold
-                                    text-[#1c1033]
-                                    transition
-                                    hover:-translate-y-px
-                                    hover:border-[#c8c2d8]
-                                    hover:bg-[#f9f8ff]
-                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
-                                "
-                type="button"
-              >
-                <span className="flex text-lg">
-                  <FcGoogle />
-                </span>
-                Google
-              </button>
-
-              <button
-                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    rounded-xl
-                                    border-[1.5px]
-                                    border-[#e4e0f0]
-                                    bg-white
-                                    px-4
-                                    py-[11px]
-                                    font-['Nunito']
-                                    text-[13px]
-                                    font-semibold
-                                    text-[#1c1033]
-                                    transition
-                                    hover:-translate-y-px
-                                    hover:border-[#c8c2d8]
-                                    hover:bg-[#f9f8ff]
-                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
-                                "
-                type="button"
-              >
-                <span className="flex text-lg">
-                  <FaGithub />
-                </span>
-                GitHub
-              </button>
-
-            </div>
-
-
-            {/* Footer */}
-
-            <p
-              className="
-                                m-0
-                                text-center
-                                font-['Nunito']
-                                text-[13.5px]
-                                text-[#6b7280]
-                            "
-            >
-              Already have an account?
-
               <Link
-                to="/signup"
+                to="/captain-login"
                 className="
-                                    ml-[3px]
-                                    font-bold
-                                    text-violet-700
-                                    no-underline
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    border-[1.5px]
+                                    border-[#F67A09]
+                                    bg-white
+                                    px-4
+                                    py-[11px]
+                                    font-['Nunito']
+                                    text-[16px]
+                                    font-semibold
+                                    text-[#F67A09]
                                     transition
-                                    hover:opacity-75
-                                    hover:underline
+                                    hover:-translate-y-px
+                                    hover:border-[#c8c2d8]
+                                    hover:bg-[#FFC405]
+                                    hover:text-white
+                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
                                 "
+                type="button"
               >
-                Sign up
+
+                Login
               </Link>
 
-            </p>
+              <Link
+                to="/captain-signup"
+                className="
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    border-[1.5px]
+                                    border-[#F67A09]
+                                    bg-white
+                                    px-4
+                                    py-[11px]
+                                    font-['Nunito']
+                                    text-[16px]
+                                    font-semibold
+                                    text-[#F67A09]
+                                    transition
+                                    hover:-translate-y-px
+                                    hover:border-[#c8c2d8]
+                                    hover:bg-[#FFC405]
+                                    hover:text-white
+                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
+                                "
+                type="button"
+              >
 
+                Signup
+              </Link>
+            </div>
           </form>
-
         </div>
-
       </div >
     </div >
   );

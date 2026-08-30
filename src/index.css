@@ -205,3 +205,19 @@ body {
     @apply bg-background text-foreground;}
   html {
     @apply font-sans;}}
+
+
+
+    /* Paste this at the bottom of your global CSS file */
+input:-webkit-autofill,
+/* input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,  */
+/* input:-webkit-autofill:active, */
+input:-internal-autofill-selected {
+  /* Forces a white background using an inset box-shadow */
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  
+  /* Forces your preferred text color (e.g., slate-900) */
+  -webkit-text-fill-color: #0f172a !important;
+}

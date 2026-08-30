@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import StartTaxi from "../assets/StartTaxi.png"
 import StartBike from "../assets/StartBike.png"
+import logoWithText from "../assets/logoWithText.png"
 import SplitText from '../components/SplitText'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
@@ -29,7 +30,7 @@ const navigate = useNavigate()
           gsap.fromTo(
             image,
             {
-              x: 250,
+              x: 50,
               y: 500,
               rotation: 20,
               scale: 0.85,
@@ -75,6 +76,9 @@ const navigate = useNavigate()
   };
   return (
     <div className='h-screen w-screen bg-gray-950 overflow-hidden'>
+       <div className='fixed lg:top-2 md:top-15 top-5 md:left-10 left-4 h-15 w-auto'>
+          <img src={logoWithText} className='w-full h-full drop-shadow-sm drop-shadow-amber-50' alt="logo" />
+        </div>
       <div className='flex justify-center items-center h-full w-full flex-col'>
         {/* <h1
           className='text-[30vw] absolute top-[10%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono bg-radial-[at_50%_0%] text-transparent bg-clip-text from-[#E8E8E8] to-[#26262660]  select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center'
@@ -84,7 +88,7 @@ const navigate = useNavigate()
 
         <SplitText
           text="WAYFARE"
-          className="text-[25vw]  absolute top-[10%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center"
+          className="text-[25vw]  absolute lg:top-[10%] top-[20%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center"
           delay={100}
           duration={1.8}
           ease="power3.out"
@@ -109,13 +113,13 @@ const navigate = useNavigate()
           <div className="embla__viewport" ref={emblaRef}>
             <div className="embla__container flex">
               <div className="embla__slide shrink-0 lg:w-[100%] w-[104%]">
-                <div className='z-5  relative top-[10%] h-full w-full '>
-                  <img src={StartTaxi} className='w-full' alt="" />
+                <div className='z-5  relative lg:top-[10%] top-[50%] h-full w-full pl-20 '>
+                  <img src={StartTaxi} className='w-full' alt="taxi_image" />
                 </div>
               </div>
               <div className="embla__slide shrink-0 lg:w-[100%] w-[104%]">
-                <div className='z-5  relative top-[10%] w-full'>
-                  <img src={StartBike} className='w-full' alt="" />
+                <div className='z-5  relative lg:top-[10%] top-[50%] w-full'>
+                  <img src={StartBike} className='w-full' alt="bike_image" />
                 </div>
               </div>
             </div>

@@ -1,99 +1,52 @@
 import { useState } from "react";
-
-
 import {
   Eye,
   EyeOff,
   ArrowRight,
-  Check,
-  ShieldCheck,
+  Loader2,
 } from "lucide-react";
 
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
-import { MdEmail, MdLock, MdPerson } from "react-icons/md";
-import { RiUserAddLine } from "react-icons/ri";
+
+import { MdEmail, MdLock } from "react-icons/md";
 
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import axios from "axios";
-import { useLocation, useNavigate ,Link} from "react-router-dom";
-
-
-function getStrength(p) {
-  if (!p) return 0;
-
-  let s = 0;
-
-  if (p.length >= 8) s++;
-  if (/[A-Z]/.test(p)) s++;
-  if (/[0-9]/.test(p)) s++;
-  if (/[^A-Za-z0-9]/.test(p)) s++;
-
-  return s;
-}
-
-
-const STRENGTH_META = [
-  null,
-  { label: "Weak", cls: "bg-red-600 text-red-600" },
-  { label: "Fair", cls: "bg-amber-600 text-amber-600" },
-  { label: "Good", cls: "bg-blue-500 text-blue-500" },
-  { label: "Strong", cls: "bg-emerald-600 text-emerald-600" },
-];
+import { useNavigate, Link } from "react-router-dom";
+import logoWithText from "../assets/logoWithText.png"
+import axiosInstance from "../lib/axios";
 
 
 const UserSignup = () => {
   const navigate = useNavigate()
-  const location = useLocation();
- 
+
   const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({
     mode: "onTouched",
   });
-
-  const password = watch("password", "");
-  const confirm = watch("confirm", "");
-
-  const strength = getStrength(password);
-  const strengthMeta = STRENGTH_META[strength];
-
-  const confirmMatch =
-    confirm && confirm === password && !errors.confirm;
-
-  const confirmMismatch =
-    confirm && errors.confirm;
 
 
   const onSubmit = async (data) => {
     setLoading(true);
 
     try {
-      const res = await axios.post("/user/register", {
-        name: data.name,
+      const res = await axiosInstance.post("/user/register", {
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
       });
 
-   
 
       toast.success("Account created successfully!");
 
 
-      navigate(
-        location.state?.from || "/",
-        {
-          replace: true,
-        }
-      );
+      navigate("/home");
 
     } catch (err) {
       toast.error(
@@ -108,13 +61,10 @@ const UserSignup = () => {
 
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gray-950">
-
       <div
         className="
                     relative flex min-h-screen w-full
-                    items-start justify-center
-                    overflow-y-auto
-                    px-5 py-10
+                    items-center justify-center
                     [scrollbar-width:none]
                     min-[820px]:items-center
                 "
@@ -195,6 +145,7 @@ const UserSignup = () => {
                         px-12
                         pb-[52px]
                         pt-11
+                        my-10
                         shadow-[0_24px_64px_rgba(109,40,217,0.13),0_4px_18px_rgba(0,0,0,0.06)]
                         animate-[cardIn_0.45s_cubic-bezier(0.34,1.56,0.64,1)_both]
                         max-[520px]:rounded-[26px]
@@ -206,39 +157,10 @@ const UserSignup = () => {
 
           {/* Brand */}
 
-          <div className="mb-8 flex items-center gap-[11px]">
-
-            <div
-              className="
-                                flex
-                                h-11
-                                w-11
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                bg-gradient-to-br
-                                from-violet-700
-                                to-violet-400
-                                text-white
-                                shadow-[0_4px_14px_rgba(109,40,217,0.22)]
-                            "
-            >
-              <RiUserAddLine size={22} />
-            </div>
-
-            <span
-              className="
-                                font-['Playfair_Display']
-                                text-xl
-                                italic
-                                tracking-[-0.01em]
-                                text-[#1c1033]
-                            "
-            >
-              portfolio
-            </span>
-
+          <div className="mb-8 h-10 w-auto">
+            <Link to="/">
+              <img src={logoWithText} className="h-full w-auto" alt="logo" />
+            </Link>
           </div>
 
 
@@ -271,57 +193,39 @@ const UserSignup = () => {
             noValidate
           >
 
-            {/* Full Name */}
+            <div className="flex gap-x-2">
 
-            <div className="flex flex-col gap-[7px]">
 
-              <label
-                htmlFor="signup-name"
-                className="
+              {/* firstName */}
+              <div className="flex flex-col gap-[7px]">
+                <label
+                  htmlFor="firstName"
+                  className="
                                     text-[13px]
                                     font-bold
                                     uppercase
                                     tracking-[0.02em]
                                     text-[#1c1033]
                                 "
-              >
-                Full Name
-              </label>
-
-              <div className="relative flex items-center">
-
-                <span
-                  className={`
-                                        pointer-events-none
-                                        absolute
-                                        left-[14px]
-                                        z-10
-                                        flex
-                                        items-center
-                                        text-[17px]
-                                        transition-colors
-                                        ${errors.name
-                      ? "text-red-500"
-                      : "text-[#b0a8c8]"
-                    }
-                                    `}
                 >
-                  <MdPerson />
-                </span>
+                  First name
+                </label>
 
-                <input
-                  id="signup-name"
-                  type="text"
-                  placeholder="John Doe"
-                  autoComplete="name"
-                  className={`
+                <div className="relative flex items-center">
+
+
+
+                  <input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    className={`
                                         w-full
                                         rounded-xl
                                         border-[1.5px]
                                         bg-[#faf9ff]
                                         px-[14px]
                                         py-[13px]
-                                        pl-[42px]
                                         font-['Nunito']
                                         text-sm
                                         font-medium
@@ -329,35 +233,90 @@ const UserSignup = () => {
                                         outline-none
                                         transition
                                         placeholder:text-[#c9c3de]
+                                      selection:bg-white
                                         placeholder:font-normal
-                                        focus:border-violet-700
+                                        focus:border-[#ffb508]
                                         focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
-                                        ${errors.name
-                      ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
-                      : "border-[#e4e0f0]"
-                    }
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
+                                        ${errors.email
+                        ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
+                        : "border-[#e4e0f0]"
+                      }
                                     `}
-                  {...register("name", {
-                    required: "Full name is required",
-                    minLength: {
-                      value: 2,
-                      message:
-                        "Name must be at least 2 characters",
-                    },
-                  })}
-                />
+                    {...register("firstName", {
+                      required: "First Name is required",
+                    })}
+                  />
 
+                </div>
+
+                {errors.firstName && (
+                  <span className="text-xs text-red-600">
+                    {errors.firstName.message}
+                  </span>
+                )}
               </div>
+              {/* lastName */}
+              <div className="flex flex-col gap-[7px]">
+                <label
+                  htmlFor="lastName"
+                  className="
+                                    text-[13px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.02em]
+                                    text-[#1c1033]
+                                "
+                >
+                  Last name
+                </label>
 
-              {errors.name && (
-                <span className="text-xs text-red-600">
-                  {errors.name.message}
-                </span>
-              )}
+                <div className="relative flex items-center">
 
+
+
+                  <input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    className={`
+                                        w-full
+                                        rounded-xl
+                                        border-[1.5px]
+                                        bg-[#faf9ff]
+                                        px-[14px]
+                                        py-[13px]
+                                        font-['Nunito']
+                                        text-sm
+                                        font-medium
+                                        text-[#1c1033]
+                                        outline-none
+                                        transition
+                                        placeholder:text-[#c9c3de]
+                                      selection:bg-white
+                                        placeholder:font-normal
+                                        focus:border-[#ffb508]
+                                        focus:bg-white
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
+                                        ${errors.email
+                        ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
+                        : "border-[#e4e0f0]"
+                      }
+                                    `}
+                    {...register("lastName", {
+                      required: "Last Name is required",
+                    })}
+                  />
+
+                </div>
+
+                {errors.lasttName && (
+                  <span className="text-xs text-red-600">
+                    {errors.lastName.message}
+                  </span>
+                )}
+              </div>
             </div>
-
 
             {/* Email */}
 
@@ -413,10 +372,11 @@ const UserSignup = () => {
                                         outline-none
                                         transition
                                         placeholder:text-[#c9c3de]
+                                      selection:bg-white
                                         placeholder:font-normal
-                                        focus:border-violet-700
+                                        focus:border-[#ffb508]
                                         focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
                                         ${errors.email
                       ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
                       : "border-[#e4e0f0]"
@@ -441,30 +401,30 @@ const UserSignup = () => {
                 </span>
               )}
 
-            </div>
 
 
-            {/* Password */}
 
-            <div className="flex flex-col gap-[7px]">
+              {/* Password */}
 
-              <label
-                htmlFor="signup-pass"
-                className="
+              <div className="flex flex-col gap-[7px]">
+
+                <label
+                  htmlFor="signup-pass"
+                  className="
                                     text-[13px]
                                     font-bold
                                     uppercase
                                     tracking-[0.02em]
                                     text-[#1c1033]
                                 "
-              >
-                Password
-              </label>
+                >
+                  Password
+                </label>
 
-              <div className="relative flex items-center">
+                <div className="relative flex items-center">
 
-                <span
-                  className="
+                  <span
+                    className="
                                         pointer-events-none
                                         absolute
                                         left-[14px]
@@ -474,16 +434,16 @@ const UserSignup = () => {
                                         text-[17px]
                                         text-[#b0a8c8]
                                     "
-                >
-                  <MdLock />
-                </span>
+                  >
+                    <MdLock />
+                  </span>
 
-                <input
-                  id="signup-pass"
-                  type={showPass ? "text" : "password"}
-                  placeholder="Min. 8 characters"
-                  autoComplete="new-password"
-                  className={`
+                  <input
+                    id="signup-pass"
+                    type={showPass ? "text" : "password"}
+                    placeholder="Enter password"
+                    autoComplete="current-password"
+                    className={`
                                         w-full
                                         rounded-xl
                                         border-[1.5px]
@@ -500,222 +460,28 @@ const UserSignup = () => {
                                         transition
                                         placeholder:text-[#c9c3de]
                                         placeholder:font-normal
-                                        focus:border-violet-700
+                                        focus:border-[#ffb508]
                                         focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
+                                        focus:shadow-[0_0_0_3.5px_rgba(255,181,8,0.14)]
                                         ${errors.password
-                      ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
-                      : "border-[#e4e0f0]"
-                    }
-                                    `}
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 8,
-                      message:
-                        "Password must be at least 8 characters",
-                    },
-                    validate: {
-                      hasUpper: (v) =>
-                        /[A-Z]/.test(v) ||
-                        "Password must contain an uppercase letter",
-
-                      hasNumber: (v) =>
-                        /[0-9]/.test(v) ||
-                        "Password must contain a number",
-                    },
-                  })}
-                />
-
-                <button
-                  type="button"
-                  className="
-                                        absolute
-                                        right-3
-                                        flex
-                                        items-center
-                                        rounded-md
-                                        bg-transparent
-                                        p-1
-                                        text-[#6b7280]
-                                        transition
-                                        hover:text-violet-700
-                                    "
-                  onClick={() =>
-                    setShowPass((v) => !v)
-                  }
-                  aria-label="Toggle password"
-                >
-                  {showPass ? (
-                    <EyeOff size={17} />
-                  ) : (
-                    <Eye size={17} />
-                  )}
-                </button>
-
-              </div>
-
-              {errors.password && (
-                <span className="text-xs text-red-600">
-                  {errors.password.message}
-                </span>
-              )}
-
-
-              {/* Strength */}
-
-              {password && (
-                <div
-                  className="
-                                        mt-0.5
-                                        flex
-                                        animate-[fadeUp_0.28s_ease_both]
-                                        items-center
-                                        gap-2
-                                    "
-                >
-
-                  <div className="flex flex-1 gap-1">
-
-                    {[1, 2, 3, 4].map((n) => (
-                      <div
-                        key={n}
-                        className={`
-                                                    h-1
-                                                    flex-1
-                                                    rounded-full
-                                                    transition-colors
-                                                    ${strength >= n && strengthMeta
-                            ? strengthMeta.cls.split(" ")[0]
-                            : "bg-[#e4e0f0]"
-                          }
-                                                `}
-                      />
-                    ))}
-
-                  </div>
-
-                  {strengthMeta && (
-                    <span
-                      className={`
-                                                min-w-[38px]
-                                                text-right
-                                                text-[11px]
-                                                font-bold
-                                                uppercase
-                                                tracking-[0.04em]
-                                                ${strengthMeta.cls.split(" ")[1]}
-                                            `}
-                    >
-                      {strengthMeta.label}
-                    </span>
-                  )}
-
-                </div>
-              )}
-
-            </div>
-
-
-            {/* Confirm Password */}
-
-            <div className="flex flex-col gap-[7px]">
-
-              <label
-                htmlFor="signup-confirm"
-                className="
-                                    text-[13px]
-                                    font-bold
-                                    uppercase
-                                    tracking-[0.02em]
-                                    text-[#1c1033]
-                                "
-              >
-                Confirm Password
-              </label>
-
-              <div className="relative flex items-center">
-
-                <span
-                  className="
-                                        pointer-events-none
-                                        absolute
-                                        left-[14px]
-                                        z-10
-                                        flex
-                                        items-center
-                                        text-[#b0a8c8]
-                                    "
-                >
-                  <ShieldCheck size={17} />
-                </span>
-
-                <input
-                  id="signup-confirm"
-                  type={
-                    showConfirm
-                      ? "text"
-                      : "password"
-                  }
-                  placeholder="Re-enter password"
-                  autoComplete="new-password"
-                  className={`
-                                        w-full
-                                        rounded-xl
-                                        border-[1.5px]
-                                        bg-[#faf9ff]
-                                        px-[14px]
-                                        py-[13px]
-                                        pl-[42px]
-                                        pr-[70px]
-                                        font-['Nunito']
-                                        text-sm
-                                        font-medium
-                                        text-[#1c1033]
-                                        outline-none
-                                        transition
-                                        placeholder:text-[#c9c3de]
-                                        placeholder:font-normal
-                                        focus:border-violet-700
-                                        focus:bg-white
-                                        focus:shadow-[0_0_0_3.5px_rgba(109,40,217,0.14)]
-                                        ${confirmMatch
-                      ? "border-emerald-600 shadow-[0_0_0_3px_rgba(5,150,105,0.12)]"
-                      : confirmMismatch
                         ? "border-red-600 shadow-[0_0_0_3px_rgba(220,38,38,0.10)]"
                         : "border-[#e4e0f0]"
-                    }
+                      }
                                     `}
-                  {...register("confirm", {
-                    required:
-                      "Please confirm your password",
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message:
+                          "Password must be at least 6 characters",
+                      },
 
-                    validate: (v) =>
-                      v === password ||
-                      "Passwords do not match",
-                  })}
-                />
+                    })}
+                  />
 
-                {confirmMatch && (
-                  <span
+                  <button
+                    type="button"
                     className="
-                                            absolute
-                                            right-[38px]
-                                            flex
-                                            items-center
-                                            text-emerald-600
-                                        "
-                  >
-                    <Check
-                      size={15}
-                      strokeWidth={3}
-                    />
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  className="
                                         absolute
                                         right-3
                                         flex
@@ -727,28 +493,27 @@ const UserSignup = () => {
                                         transition
                                         hover:text-violet-700
                                     "
-                  onClick={() =>
-                    setShowConfirm((v) => !v)
-                  }
-                  aria-label="Toggle confirm password"
-                >
-                  {showConfirm ? (
-                    <EyeOff size={17} />
-                  ) : (
-                    <Eye size={17} />
-                  )}
-                </button>
+                    onClick={() =>
+                      setShowPass((v) => !v)
+                    }
+                    aria-label="Toggle password"
+                  >
+                    {showPass ? (
+                      <EyeOff size={17} />
+                    ) : (
+                      <Eye size={17} />
+                    )}
+                  </button>
 
+                </div>
+
+                {errors.password && (
+                  <span className="text-xs text-red-600">
+                    {errors.password.message}
+                  </span>
+                )}
               </div>
-
-              {errors.confirm && (
-                <span className="text-xs text-red-600">
-                  {errors.confirm.message}
-                </span>
-              )}
-
             </div>
-
 
             {/* Submit */}
 
@@ -763,8 +528,8 @@ const UserSignup = () => {
                                 rounded-xl
                                 border-0
                                 bg-gradient-to-br
-                                from-violet-700
-                                to-violet-500
+                                from-[#FDC903]
+                                to-[#F67A09]
                                 px-7
                                 py-[15px]
                                 font-['Nunito']
@@ -776,7 +541,7 @@ const UserSignup = () => {
                                 transition
                                 hover:-translate-y-0.5
                                 hover:brightness-110
-                                hover:shadow-[0_8px_30px_rgba(109,40,217,0.45)]
+                                hover:shadow-[0_8px_30px_rgba(255,181,8,0.5)]
                                 active:translate-y-0
                                 disabled:cursor-not-allowed
                                 disabled:opacity-70
@@ -785,23 +550,50 @@ const UserSignup = () => {
               disabled={loading}
             >
 
-              {loading
-                ? "Creating account..."
-                : "Create Account"}
-
-              <span
-                className="
+              {loading ? <Loader2 className=" animate-spin" /> : "Create Account"}
+              {!loading &&
+                <span
+                  className="
                                     transition-transform
                                     group-hover:translate-x-1
                                 "
-              >
-                <ArrowRight
-                  size={17}
-                  strokeWidth={2.5}
-                />
-              </span>
+                >
+                  <ArrowRight
+                    size={17}
+                    strokeWidth={2.5}
+                  />
+                </span>
+              }
 
             </button>
+
+            <p
+              className="
+                                m-0
+                                text-center
+                                font-['Nunito']
+                                text-[13.5px]
+                                text-[#6b7280]
+                            "
+            >
+              Already have an account?
+
+              <Link
+                to="/login"
+                className="
+                                    ml-[3px]
+                                    font-bold
+                                    text-[#F67A09]
+                                    no-underline
+                                    transition
+                                    hover:opacity-75
+                                    hover:underline
+                                "
+              >
+                Login
+              </Link>
+
+            </p>
 
 
             {/* Divider */}
@@ -824,7 +616,7 @@ const UserSignup = () => {
                                     font-medium
                                 "
               >
-                or continue with
+                Start as captain
               </span>
 
               <span className="h-px flex-1 bg-[#e4e0f0]" />
@@ -836,105 +628,70 @@ const UserSignup = () => {
 
             <div className="grid grid-cols-2 gap-3">
 
-              <button
-                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    rounded-xl
-                                    border-[1.5px]
-                                    border-[#e4e0f0]
-                                    bg-white
-                                    px-4
-                                    py-[11px]
-                                    font-['Nunito']
-                                    text-[13px]
-                                    font-semibold
-                                    text-[#1c1033]
-                                    transition
-                                    hover:-translate-y-px
-                                    hover:border-[#c8c2d8]
-                                    hover:bg-[#f9f8ff]
-                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
-                                "
-                type="button"
-              >
-                <span className="flex text-lg">
-                  <FcGoogle />
-                </span>
-                Google
-              </button>
-
-              <button
-                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    rounded-xl
-                                    border-[1.5px]
-                                    border-[#e4e0f0]
-                                    bg-white
-                                    px-4
-                                    py-[11px]
-                                    font-['Nunito']
-                                    text-[13px]
-                                    font-semibold
-                                    text-[#1c1033]
-                                    transition
-                                    hover:-translate-y-px
-                                    hover:border-[#c8c2d8]
-                                    hover:bg-[#f9f8ff]
-                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
-                                "
-                type="button"
-              >
-                <span className="flex text-lg">
-                  <FaGithub />
-                </span>
-                GitHub
-              </button>
-
-            </div>
-
-
-            {/* Footer */}
-
-            <p
-              className="
-                                m-0
-                                text-center
-                                font-['Nunito']
-                                text-[13.5px]
-                                text-[#6b7280]
-                            "
-            >
-              Already have an account?
-
               <Link
-                to="/login"
+                to="/captain-login"
                 className="
-                                    ml-[3px]
-                                    font-bold
-                                    text-violet-700
-                                    no-underline
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    border-[1.5px]
+                                    border-[#F67A09]
+                                    bg-white
+                                    px-4
+                                    py-[11px]
+                                    font-['Nunito']
+                                    text-[16px]
+                                    font-semibold
+                                    text-[#F67A09]
                                     transition
-                                    hover:opacity-75
-                                    hover:underline
+                                    hover:-translate-y-px
+                                    hover:border-[#c8c2d8]
+                                    hover:bg-[#FFC405]
+                                    hover:text-white
+                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
                                 "
+                type="button"
               >
-                Sign in
+
+                Login
               </Link>
 
-            </p>
+              <Link
+                to="/captain-signup"
+                className="
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    border-[1.5px]
+                                    border-[#F67A09]
+                                    bg-white
+                                    px-4
+                                    py-[11px]
+                                    font-['Nunito']
+                                    text-[16px]
+                                    font-semibold
+                                    text-[#F67A09]
+                                    transition
+                                    hover:-translate-y-px
+                                    hover:border-[#c8c2d8]
+                                    hover:bg-[#FFC405]
+                                    hover:text-white
+                                    hover:shadow-[0_2px_10px_rgba(0,0,0,0.07)]
+                                "
+                type="button"
+              >
 
+                Signup
+              </Link>
+            </div>
           </form>
-
         </div>
-
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 
