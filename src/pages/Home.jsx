@@ -1,15 +1,56 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { ChevronDown } from 'lucide-react'
+import React, { useRef, useState } from 'react'
+import logoWithText from "../assets/logoWithText.png"
 
 const Home = () => {
+  const [panelOpen, setPanelOpen] = useState(false)
+  const panelRef = useRef(null)
+  const panelCloseRef = useRef(null)
+
+  useGSAP(() => {
+    if (panelOpen) {
+      gsap.to(panelRef.current, {
+        height: "70%"
+      })
+      gsap.to(panelCloseRef.current, {
+        opacity: 1
+      })
+    } else {
+      gsap.to(panelRef.current, {
+        height: 0
+      })
+      gsap.to(panelCloseRef.current, {
+        opacity: 0
+      })
+    }
+  }, [panelOpen])
   return (
-    <div>
-        <div className='bg-cover bg-center bg-[url(https://images.unsplash.com/photo-1619059558110-c45be64b73ae?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)] h-screen pt-8 flex justify-between flex-col w-full'>
-        <img className='w-16 ml-8' src="https://cdn-assets-eu.frontify.com/s3/frontify-enterprise-files-eu/eyJwYXRoIjoid2VhcmVcL2ZpbGVcLzhGbTh4cU5SZGZUVjUxYVh3bnEyLnN2ZyJ9:weare:F1cOF9Bps96cMy7r9Y2d7affBYsDeiDoIHfqZrbcxAw?width=1200&height=417" alt="" />
-        <div className='bg-white pb-8 py-4 px-4'>
-          <h2 className='text-[30px] font-semibold'>Get Started with Uber</h2>
-          <Link to='/login' className='flex items-center justify-center w-full bg-black text-white py-3 rounded-lg mt-5'>Continue</Link>
+    <div className='h-screen w-screen overflow-hidden relative'>
+      <div className='h-10 w-auto absolute top-4 left-4  drop-shadow-sm drop-shadow-amber-50'>
+        <img src={logoWithText} className='h-full' alt="logo" />
+      </div>
+      <div className='h-full w-full'>
+        <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+      </div>
+      <div className='h-screen w-full absolute top-0 flex flex-col justify-end'>
+        <div className='h-[30%] bg-white p-6 flex flex-col justify-center relative'>
+
+          <h4 className='text-2xl font-semibold flex relative'><span>Find a trip</span>
+            <span ref={panelCloseRef} onClick={() => {
+              setPanelOpen(false)
+            }} className='absolute opacity-0 right-6 text-2xl cursor-pointer'>
+              <ChevronDown />
+            </span></h4>
+
+          <form className='relative'>
+            <div className="line absolute h-16 w-1 top-[50%] -translate-y-[30%] left-5 bg-gray-700 rounded-full"></div>
+            <input onClick={() => setPanelOpen(true)} placeholder='Add a pick-up location' type="text" className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-6' />
+            <input onClick={() => setPanelOpen(true)} placeholder='Enter your destination' type="text" className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-4' />
+          </form>
         </div>
+        <div ref={panelRef} className='h-0 bg-amber-400'></div>
       </div>
     </div>
   )

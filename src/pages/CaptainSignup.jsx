@@ -14,11 +14,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import logoWithText from "../assets/logoWithText.png"
 import axiosInstance from "../lib/axios";
+import { captainLogin } from "../redux/Slices/captainSlices";
+import { useDispatch } from "react-redux";
 
 
 const CaptainSignup = () => {
   const navigate = useNavigate()
-
+  const dispatch = useDispatch()
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -46,11 +48,17 @@ const CaptainSignup = () => {
         vehicleType: data.vehicleType,
       });
 
+      if (res.data.success) {
+        localStorage.setItem("wf_token", res.data.token)
+        dispatch(captainLogin(res.data.captain))
+        toast.success("Captain Account created successfully!");
 
-      toast.success("Captain Account created successfully!");
+
+        navigate("/captain-home");
+      }
 
 
-      navigate("/captain-home");
+
 
     } catch (err) {
       toast.error(

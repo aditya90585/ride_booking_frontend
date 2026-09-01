@@ -12,14 +12,16 @@ import { MdEmail, MdLock } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import {  useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import logoWithText from "../assets/logoWithText.png"
 import axiosInstance from "../lib/axios";
+import { login } from "../redux/Slices/userSlices";
+import { useDispatch } from "react-redux";
 
 
 const UserLogin = () => {
   const navigate = useNavigate()
-
+  const dispatch = useDispatch()
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -41,11 +43,13 @@ const UserLogin = () => {
         password: data.password,
       });
 
+      if (res.data.success) {
+        localStorage.setItem("wf_token", res.data.token)
+        dispatch(login(res.data.user))
+        toast.success("User Login successfully!");
+        navigate("/home");
+      }
 
-      toast.success("User Login successfully!");
-
-
-      navigate("/home");
 
     } catch (err) {
       toast.error(
@@ -157,8 +161,8 @@ const UserLogin = () => {
 
           <div className="mb-8 h-10 w-auto">
             <Link to="/">
-            <img src={logoWithText} className="h-full w-auto" alt="logo" />
-             </Link>
+              <img src={logoWithText} className="h-full w-auto" alt="logo" />
+            </Link>
           </div>
 
 

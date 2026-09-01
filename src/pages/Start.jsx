@@ -80,12 +80,7 @@ const navigate = useNavigate()
           <img src={logoWithText} className='w-full h-full drop-shadow-sm drop-shadow-amber-50' alt="logo" />
         </div>
       <div className='flex justify-center items-center h-full w-full flex-col'>
-        {/* <h1
-          className='text-[30vw] absolute top-[10%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono bg-radial-[at_50%_0%] text-transparent bg-clip-text from-[#E8E8E8] to-[#26262660]  select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center'
-        >
-          RIDEVY
-        </h1> */}
-
+    
         <SplitText
           text="WAYFARE"
           className="text-[25vw]  absolute lg:top-[10%] top-[20%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center"

@@ -14,11 +14,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import logoWithText from "../assets/logoWithText.png"
 import axiosInstance from "../lib/axios";
+import { login } from "../redux/Slices/userSlices";
+import { useDispatch } from "react-redux";
 
 
 const UserSignup = () => {
   const navigate = useNavigate()
-
+  const dispatch = useDispatch()
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -42,11 +44,12 @@ const UserSignup = () => {
         password: data.password,
       });
 
-
-      toast.success("Account created successfully!");
-
-
-      navigate("/home");
+      if (res.data.success) {
+        localStorage.setItem("wf_token", res.data.token)
+        dispatch(login(res.data.user))
+        toast.success("Account created successfully!");
+        navigate("/home");
+      }
 
     } catch (err) {
       toast.error(
