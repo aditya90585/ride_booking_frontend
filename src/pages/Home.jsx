@@ -133,7 +133,7 @@ const Home = () => {
           <ConfirmRide setConfirmRidePanelOpen={setConfirmRidePanelOpen} setVehicleFound={setVehicleFound} />
         </div>
         <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-6 py-2 pt-6' >
-          <LookingForDriver setVehicleFound={setVehicleFound} setWaitingForDriver={setWaitingForDriver} />
+          <LookingForDriver setVehicleFound={setVehicleFound} />
         </div>
         <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-6 py-2 pt-6' >
           <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
