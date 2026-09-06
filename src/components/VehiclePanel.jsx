@@ -5,7 +5,7 @@ import Bike from "../assets/bike.png"
 import Auto from "../assets/auto.png"
 
 
-const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen }) => {
+const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen, fare, setVehicleType }) => {
     return (
         <div>
             <span onClick={() => {
@@ -17,6 +17,7 @@ const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen }) => {
             </h3>
             <div
                 onClick={() => {
+                    setVehicleType("car")
                     setConfirmRidePanelOpen(true)
                     // setVehiclePanelOpen(false)
                 }}
@@ -27,10 +28,11 @@ const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen }) => {
                     <h5 className='font-medium text-sm'>2 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable, compact rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹190</h2>
+                <h2 className='text-lg font-semibold'>₹{fare["car"]}</h2>
             </div>
             <div
                 onClick={() => {
+                    setVehicleType("moto")
                     setConfirmRidePanelOpen(true)
                     // setVehiclePanelOpen(false)
                 }}
@@ -41,10 +43,11 @@ const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen }) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable motorcycle rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹80</h2>
+                <h2 className='text-lg font-semibold'>₹{fare["moto"]}</h2>
             </div>
             <div
                 onClick={() => {
+                    setVehicleType("auto")
                     setConfirmRidePanelOpen(true)
                     // setVehiclePanelOpen(false)
                 }}
@@ -55,7 +58,7 @@ const VehiclePanel = ({ setVehiclePanelOpen, setConfirmRidePanelOpen }) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable Auto rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹120</h2>
+                <h2 className='text-lg font-semibold'>₹{fare["auto"]}</h2>
             </div>
         </div>
     )
