@@ -4,7 +4,7 @@ import captainSlice from "./Slices/captainSlices";
 
 export const store = configureStore({
     reducer: {
-        userSlice,
-        captainSlice
+        user: userSlice,
+        captain: captainSlice
     }
 })

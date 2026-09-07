@@ -10,7 +10,7 @@ const captainSlices = createSlice({
     initialState,
     reducers: {
         captainLogin: (state, action) => {
-            state.captainData = action.payload.user
+            state.captainData = action.payload
             state.captainAuthStatus = true
         },
         captainLogout:(state,action) =>{

@@ -1,7 +1,7 @@
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ChevronDown, UserRound } from 'lucide-react'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import logoWithText from "../assets/logoWithText.png"
 import LocationSearchPanel from '../components/LocationSearchPanel'
 import VehiclePanel from '../components/VehiclePanel'
@@ -10,6 +10,8 @@ import LookingForDriver from '../components/LookingForDriver'
 import WaitingForDriver from '../components/WaitingForDriver'
 import axiosInstance from '../lib/axios'
 import { toast } from 'react-toastify'
+import { SocketContext } from '../context/SocketContext'
+import { useSelector } from 'react-redux'
 
 const Home = () => {
   const [panelOpen, setPanelOpen] = useState(false)
@@ -35,6 +37,14 @@ const Home = () => {
   const [activeField, setActiveField] = useState(null)
   const [fare, setFare] = useState({})
   const [vehicleType, setVehicleType] = useState(null)
+  const userData = useSelector((state) => state.user.userData)
+
+  const {socket} = useContext(SocketContext)
+
+  useEffect(() => {
+    socket.emit("join", { userId: userData._id, userType: "user" })
+  }, [])
+
 
 
   useGSAP(() => {
