@@ -185,6 +185,20 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-rotate";
+import markerIcon from "../assets/leaflet/marker-icon.png";
+import markerIcon2x from "../assets/leaflet/marker-icon-2x.png";
+import markerShadow from "../assets/leaflet/marker-shadow.png";
+const defaultIcon = L.icon({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = defaultIcon;
 
 const RouteFocus = ({ route }) => {
     const map = useMap();
@@ -308,7 +322,7 @@ const Map = ({
 
             <Marker position={[latitude, longitude]}>
                 <Popup>
-                    Captain's current location
+                     current location
                 </Popup>
             </Marker>
 
