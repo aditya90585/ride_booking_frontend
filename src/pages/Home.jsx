@@ -1,6 +1,6 @@
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ChevronDown, UserRound } from 'lucide-react'
+import { ChevronDown, MapPin, UserRound } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import logoWithText from "../assets/logoWithText.png"
 import LocationSearchPanel from '../components/LocationSearchPanel'
@@ -12,8 +12,11 @@ import axiosInstance from '../lib/axios'
 import { toast } from 'react-toastify'
 import { SocketContext } from '../context/SocketContext'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import Map from '../components/Map'
 
 const Home = () => {
+  const navigate = useNavigate()
   const [panelOpen, setPanelOpen] = useState(false)
   const panelRef = useRef(null)
   const panelCloseRef = useRef(null)
@@ -38,14 +41,59 @@ const Home = () => {
   const [fare, setFare] = useState({})
   const [vehicleType, setVehicleType] = useState(null)
   const userData = useSelector((state) => state.user.userData)
+  const [ride, setRide] = useState({})
 
-  const {socket} = useContext(SocketContext)
+  const [location, setLocation] = useState(null);
+
+  const { socket } = useContext(SocketContext)
 
   useEffect(() => {
     socket.emit("join", { userId: userData._id, userType: "user" })
   }, [])
 
+  useEffect(() => {
+    socket.on("ride-confirmed", (data) => {
+      setRide(data)
+      setVehicleFound(false)
+      navigate("/waiting-for-driver", { state: { ride:data } })
+    })
 
+    return () => {
+      socket.off("ride-confirmed")
+    }
+  }, [])
+
+  useEffect(() => {
+    socket.on("ride-started", (data) => {
+      setWaitingForDriver(false)
+      navigate("/riding", { state: { ride: data } })
+    })
+
+    return () => {
+      socket.off("ride-started")
+    }
+  }, [])
+
+
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+      },
+      (error) => {
+        console.error(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }, []);
 
   useGSAP(() => {
     if (panelOpen) {
@@ -98,27 +146,27 @@ const Home = () => {
   useGSAP(function () {
     if (vehicleFound) {
       gsap.to(vehicleFoundRef.current, {
-        transform: 'translateY(0)'
+        translateY: 0
       })
     } else {
       gsap.to(vehicleFoundRef.current, {
-        transform: 'translateY(100%)'
+        translateY: "100%"
       })
     }
   }, [vehicleFound])
 
 
-  useGSAP(function () {
-    if (waitingForDriver) {
-      gsap.to(waitingForDriverRef.current, {
-        transform: 'translateY(0)'
-      })
-    } else {
-      gsap.to(waitingForDriverRef.current, {
-        transform: 'translateY(100%)'
-      })
-    }
-  }, [waitingForDriver])
+  // useGSAP(function () {
+  //   if (waitingForDriver) {
+  //     gsap.to(waitingForDriverRef.current, {
+  //       translateY: 0
+  //     })
+  //   } else {
+  //     gsap.to(waitingForDriverRef.current, {
+  //       translateY: "100%"
+  //     })
+  //   }
+  // }, [waitingForDriver])
 
   // function debounce(func, delay) {
   //   let timeoutId;
@@ -249,6 +297,56 @@ const Home = () => {
     }
   }
 
+  const handleCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        setLocation({
+          latitude,
+          longitude
+        });
+
+        try {
+          const response = await axiosInstance.get("/maps/reverse-geocode", {
+            params: {
+              lat: latitude,
+              lng: longitude
+            }
+          });
+
+          setPickup(response.data.address);
+          setPickupSuggestions([]);
+          setPanelOpen(false);
+        } catch (error) {
+          console.error("Reverse geocoding failed:", error);
+          toast.error("Unable to get your current address.");
+        }
+      },
+      (error) => {
+        console.error("Location error:", error);
+
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Please allow location access in your browser.");
+        } else if (error.code === error.TIMEOUT) {
+          toast.error("Unable to get your location. Please try again.");
+        } else {
+          toast.error("Unable to get your current location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
+    );
+  };
+
 
   return (
     <div className='h-screen w-screen overflow-hidden relative'>
@@ -256,10 +354,18 @@ const Home = () => {
         <img src={logoWithText} className='h-full' alt="logo" />
       </div>
       <div className='h-screen w-full'>
-        <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+        {/* <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" /> */}
+        {location ? (
+          <Map
+            className="absolute z-2"
+            latitude={location.latitude}
+            longitude={location.longitude}
+          />
+        ) : <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+        }
       </div>
       <div className='h-screen w-full absolute top-0 flex flex-col justify-end'>
-        <div className='h-[30%] bg-white p-6 flex flex-col justify-center relative'>
+        <div className='h-[35%] bg-white p-6 flex flex-col justify-center relative z-3'>
           <h4 className='text-2xl font-semibold flex relative'><span>Find a trip</span>
             <span ref={panelCloseRef} onClick={() => {
               setPanelOpen(false)
@@ -268,7 +374,16 @@ const Home = () => {
             </span></h4>
 
           <form className='relative'>
-            <div className="line absolute h-16 w-1 top-[50%] -translate-y-[30%] left-5 bg-gray-500 rounded-full"></div>
+            <div className="line absolute h-16 w-1 top-[60%] -translate-y-[30%] left-5 bg-gray-500 rounded-full"></div>
+
+            <button
+              type="button"
+              onClick={handleCurrentLocation}
+              className="flex items-center gap-2 mt-3 ml-2 text-sm font-medium text-blue-600 cursor-pointer"
+            >
+              <MapPin size={16} />
+              Use my current location
+            </button>
             <input onClick={() => {
               setPanelOpen(true)
               setActiveField("pickup")
@@ -291,7 +406,7 @@ const Home = () => {
         </div>
 
 
-        <div ref={panelRef} className='h-0 bg-white px-6'>
+        <div ref={panelRef} className='h-0 bg-white px-6 z-3 relative'>
           <LocationSearchPanel
             suggestions={activeField == "pickup" ? pickupSuggestions : destinationSuggestions}
             setPanelOpen={setPanelOpen}
@@ -338,9 +453,11 @@ const Home = () => {
         </div>
 
 
-        <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-6 py-2 pt-6' >
-          <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
-        </div>
+        {/* <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-6 py-2 pt-6' >
+          <WaitingForDriver setWaitingForDriver={setWaitingForDriver}
+            ride={ride}
+          />
+        </div> */}
       </div>
     </div>
   )

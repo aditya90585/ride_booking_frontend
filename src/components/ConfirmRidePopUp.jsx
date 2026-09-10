@@ -3,13 +3,29 @@ import React from 'react'
 import { FaLocationCrosshairs, FaMapLocationDot, FaRupeeSign } from 'react-icons/fa6'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import axiosInstance from '../lib/axios'
+import { toast } from 'react-toastify'
 
-const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel }) => {
+const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride }) => {
     const navigate = useNavigate()
     const { register, handleSubmit, setFocus, formState: { errors } } = useForm()
 
-    const onSubmit = () => {
-        navigate('/captain-riding')
+    const onSubmit = async (data) => {
+        try {
+            const res = await axiosInstance.post("/ride/start-ride", {
+                rideId: ride._id,
+                otp: `${data.otp0}${data.otp1}${data.otp2}${data.otp3}`
+            })
+            if (res.status === 200) {
+                toast.success("Ride started successfully!")
+                setConfirmRidePopUpPanel(false)
+                // setRidePopUpPanel(false)
+                navigate("/captain-riding", { state: { ride: res.data } })
+            }
+        } catch (error) {
+            console.error("Error starting ride:", error)
+            toast.error("Failed to start ride. Please check the OTP and try again.")
+        }
     }
 
     return (
@@ -23,7 +39,7 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel }) => {
             <div className='flex items-center justify-between p-3 border-2 border-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
                     <img className='h-12 rounded-full object-cover w-12' src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>test user</h2>
+                    <h2 className='text-lg font-medium capitalize'>{ride?.user?.fullName?.firstName} {ride?.user?.fullName?.lastName}</h2>
                 </div>
                 <h5 className='text-lg font-semibold'>2.2 KM</h5>
             </div>
@@ -34,20 +50,20 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel }) => {
                         <FaLocationCrosshairs />
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Ganga Nagar,Meerut,Uttar Pradesh</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{ride?.pickupLocation}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <FaMapLocationDot />
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Shiv Chowk , Muzaffarnagar, Uttar Pradesh</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{ride?.destination}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <FaRupeeSign />
                         <div>
-                            <h3 className='text-lg font-medium'>₹120</h3>
+                            <h3 className='text-lg font-medium'>₹{ride?.fare}</h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
                         </div>
                     </div>
@@ -58,10 +74,10 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel }) => {
                         {[0, 1, 2, 3].map((index) => (
                             <input
                                 key={index}
-                                type='text'
+                                type='number'
                                 inputMode='numeric'
                                 maxLength={1}
-                                className='bg-[#eee] text-center text-xl font-semibold rounded-lg aspect-square w-full'
+                                className='bg-[#eee] text-center text-xl font-semibold rounded-lg aspect-square w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                                 {...register(`otp${index}`, {
                                     required: 'Enter all OTP digits',
                                     pattern: { value: /^[0-9]$/, message: 'OTP must contain only numbers' },
@@ -83,7 +99,7 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel }) => {
                         <button type='submit' className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
                         <button onClick={() => {
                             setConfirmRidePopUpPanel(false)
-                            setRidePopUpPanel(false)
+                            // setRidePopUpPanel(false)
                         }} className='w-full mt-5 bg-red-500 text-white font-semibold p-2 rounded-lg'>Cancel</button>
                     </div>
                 </form>

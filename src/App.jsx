@@ -11,6 +11,8 @@ import CaptainProtectedWrapper from './components/CaptainProtectedWrapper'
 import CaptainHome from './pages/CaptainHome'
 import Riding from './pages/Riding'
 import CaptainRiding from './pages/CaptainRiding'
+import WaitingForDriver from './pages/WaitingForDriver'
+import GoToPickup from './pages/GoToPickup'
 
 const App = () => {
   return (
@@ -23,10 +25,11 @@ const App = () => {
           <Route path='/captain-signup' element={<CaptainSignup />} />
           <Route path='/captain-login' element={<CaptainLogin />} />
           <Route path='/home' element={<UserProtectedWrapper> <Home /> </UserProtectedWrapper>} />
-          <Route path='/captain-home' element={<CaptainProtectedWrapper><CaptainHome /></CaptainProtectedWrapper>} />
-
+          <Route path='/waiting-for-driver' element={<UserProtectedWrapper> <WaitingForDriver /> </UserProtectedWrapper>} />
           <Route path='/riding' element={<UserProtectedWrapper> <Riding /> </UserProtectedWrapper>} />
 
+          <Route path='/captain-home' element={<CaptainProtectedWrapper><CaptainHome /></CaptainProtectedWrapper>} />
+          <Route path='/going-to-pickup' element={<CaptainProtectedWrapper><GoToPickup /></CaptainProtectedWrapper>} />
           <Route path='/captain-riding' element={<CaptainProtectedWrapper> <CaptainRiding /> </CaptainProtectedWrapper>} />
         </Routes>
       </BrowserRouter>

@@ -1,28 +1,137 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { FaHome } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoWithText from "../assets/logoWithText.png"
 
 import { ChevronUp } from 'lucide-react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import FinishRide from '../components/FinishRide'
+import axiosInstance from '../lib/axios'
+import { toast } from 'react-toastify'
+import Map from '../components/Map'
+import { SocketContext } from '../context/SocketContext'
 
 const CaptainRiding = () => {
-   const [ finishRidePanel, setFinishRidePanel ] = useState(false)
-    const finishRidePanelRef = useRef(null)
-    
-    useGSAP(function () {
-        if (finishRidePanel) {
-            gsap.to(finishRidePanelRef.current, {
-                transform: 'translateY(0)'
-            })
-        } else {
-            gsap.to(finishRidePanelRef.current, {
-                transform: 'translateY(100%)'
-            })
+  const [finishRidePanel, setFinishRidePanel] = useState(false)
+  const finishRidePanelRef = useRef(null)
+  const routerLocation = useLocation()
+  const rideData = routerLocation?.state?.ride
+  const navigate = useNavigate()
+  const [captainLocation, setCaptainLocation] = useState(null);
+  const [route, setRoute] = useState(null);
+
+  const { socket } = useContext(SocketContext)
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+  
+    if (!rideData?.captain?._id || !rideData?.user?.socketId) {
+      return
+    }
+
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude,heading } = position.coords;
+
+        setCaptainLocation({
+          latitude,
+          longitude,
+          heading
+        });
+ 
+        socket.emit('update-location-captain', {
+          captainId: rideData?.captain?._id,
+          userSocketId: rideData?.user?.socketId,
+          location: {
+            ltd: position.coords.latitude,
+            lng: position.coords.longitude,
+             heading: position.coords?.heading
+          }
+        })
+      },
+      (error) => {
+        console.error("Captain location error:", error);
+
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Please allow location access.");
+        } else if (error.code === error.TIMEOUT) {
+          toast.error("Unable to get your location.");
         }
-    }, [ finishRidePanel ])
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000
+      }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [rideData]);
+
+
+  useEffect(() => {
+    const getRoute = async () => {
+      try {
+        if (!rideData?.pickupLocation || !rideData?.destination) {
+          return;
+        }
+
+        const routeResponse = await axiosInstance.get(
+          "/maps/get-route",
+          {
+            params: {
+              origin: rideData.pickupLocation,
+              destination: rideData.destination
+            }
+          }
+        );
+
+        setRoute(routeResponse.data.route);
+      } catch (error) {
+        console.error("Failed to fetch route:", error);
+      }
+    };
+
+    getRoute();
+  }, [rideData]);
+
+
+  useGSAP(function () {
+    if (finishRidePanel) {
+      gsap.to(finishRidePanelRef.current, {
+        transform: 'translateY(0)'
+      })
+    } else {
+      gsap.to(finishRidePanelRef.current, {
+        transform: 'translateY(100%)'
+      })
+    }
+  }, [finishRidePanel])
+
+  const endRide = async () => {
+    try {
+
+      const res = await axiosInstance.post("/ride/end-ride", {
+        rideId: rideData._id
+      })
+      if (res.status === 200) {
+        toast.success("Ride ended successfully!")
+        setFinishRidePanel(false)
+        navigate("/captain-home")
+      }
+    } catch (error) {
+      console.error("Error ending ride:", error)
+      toast.error("Failed to end ride. Please try again.")
+    }
+  }
+
 
   return (
     <div className='h-screen'>
@@ -33,10 +142,25 @@ const CaptainRiding = () => {
         </Link>
       </div>
       <div className='h-4/5'>
-        <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
+        {/* <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" /> */}
+        {captainLocation ? (
+          <Map
+            className="absolute z-2"
+            latitude={captainLocation.latitude}
+            longitude={captainLocation.longitude}
+            route={route}
+            heading={captainLocation.heading}
+          />
+        ) : (
+          <img
+            className="h-full w-full object-cover"
+            src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d"
+            alt=""
+          />
+        )}
       </div>
 
-      <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400 pt-10'
+      <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400 pt-10 relative z-3'
         onClick={() => {
           setFinishRidePanel(true)
         }}
@@ -48,10 +172,13 @@ const CaptainRiding = () => {
         <button className=' bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>Complete Ride</button>
       </div>
 
-       <div ref={finishRidePanelRef} className='fixed w-full z-[500] bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <FinishRide
-                    setFinishRidePanel={setFinishRidePanel} />
-            </div>
+      <div ref={finishRidePanelRef} className='fixed w-full z-[500] bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+        <FinishRide
+          setFinishRidePanel={setFinishRidePanel}
+          ride={rideData}
+          endRide={endRide}
+        />
+      </div>
 
     </div>
   )
