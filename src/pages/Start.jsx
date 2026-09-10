@@ -75,7 +75,7 @@ const navigate = useNavigate()
     console.log('All letters have animated!');
   };
   return (
-    <div className='h-screen w-screen bg-gray-950 overflow-hidden'>
+    <div className='h-dvh w-screen bg-gray-950 overflow-hidden'>
        <div className='fixed lg:top-2 md:top-15 top-5 md:left-10 left-4 h-15 w-auto'>
           <img src={logoWithText} className='w-full h-full drop-shadow-sm drop-shadow-amber-50' alt="logo" />
         </div>

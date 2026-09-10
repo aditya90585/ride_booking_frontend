@@ -349,11 +349,11 @@ const Home = () => {
 
 
   return (
-    <div className='h-screen w-screen overflow-hidden relative'>
+    <div className='h-dvh w-screen overflow-hidden relative'>
       <div className='h-10 w-auto absolute top-4 left-4  drop-shadow-sm drop-shadow-amber-50'>
         <img src={logoWithText} className='h-full' alt="logo" />
       </div>
-      <div className='h-screen w-full'>
+      <div className='h-dvh w-full'>
         {/* <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" /> */}
         {location ? (
           <Map
@@ -364,8 +364,8 @@ const Home = () => {
         ) : <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
         }
       </div>
-      <div className='h-screen w-full absolute top-0 flex flex-col justify-end'>
-        <div className='h-[35%] bg-white p-6 flex flex-col justify-center relative z-3'>
+      <div className='h-dvh  w-full absolute top-0 flex flex-col justify-end'>
+        <div className='h-fit py-8 bg-white p-6 flex flex-col justify-center relative z-3'>
           <h4 className='text-2xl font-semibold flex relative'><span>Find a trip</span>
             <span ref={panelCloseRef} onClick={() => {
               setPanelOpen(false)

@@ -77,7 +77,7 @@ const Riding = () => {
 
 
     return (
-        <div className='h-screen w-screen overflow-hidden relative flex flex-col justify-end'>
+        <div className='h-dvh w-screen overflow-hidden relative flex flex-col justify-between'>
             <div className='h-10 w-auto absolute top-4 left-4  drop-shadow-sm drop-shadow-amber-50'>
                 <img src={logoWithText} className='h-full' alt="logo" />
             </div>
@@ -101,7 +101,7 @@ const Riding = () => {
                 )}
 
             </div>
-            <div className='h-1/2 p-4 overflow-y-scroll relative z-3 bg-white'>
+            <div className='h-fit p-6 py-8 relative z-3 bg-white'>
                 <div className='flex items-center justify-between'>
                     <img className='h-30' src={Car} alt="" />
                     <div className='text-right'>

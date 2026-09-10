@@ -73,7 +73,7 @@ const WaitingForDriver = () => {
 
 
     return (
-        <div className="flex items-center flex-col h-screen overflow-hidden w-full z-10 bottom-0  bg-white">
+        <div className="flex items-center justify-between flex-col h-dvh overflow-hidden w-full z-10 bottom-0  bg-white">
             <div className='h-1/2 w-full'>
                 {(captainLocation?.latitude && captainLocation?.longitude) ? (
                     <Map
@@ -92,7 +92,7 @@ const WaitingForDriver = () => {
                 )}
 
             </div>
-            <div className='h-1/2 w-full px-6 py-2 relative z-4 bg-white'>
+            <div className='h-fit w-full px-6 py-2 relative z-4 bg-white'>
                 <h3 className='text-2xl font-semibold mb-5 text-center'>Driver is on the way</h3>
                 <div className='flex items-center justify-between'>
                     <img className='h-30' src={Car} alt="" />

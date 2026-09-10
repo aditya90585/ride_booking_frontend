@@ -197,7 +197,7 @@ const GoToPickup = () => {
 
 
     return (
-        <div className='h-screen'>
+        <div className='h-dvh'>
             <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>
                 <img className='w-16' src={logoWithText} alt="logo" />
                 <Link to='/captain-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full'>
@@ -243,7 +243,7 @@ const GoToPickup = () => {
         />
       </div> */}
 
-            <div ref={ConfirmRidePopUpRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full  bg-white px-3 py-10 pt-12'>
+            <div ref={ConfirmRidePopUpRef} className='fixed w-full h-dvh z-10 bottom-0 translate-y-full  bg-white px-3 py-10 pt-12'>
                 <ConfirmRidePopUp
                     setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
                     // setRidePopUpPanel={}

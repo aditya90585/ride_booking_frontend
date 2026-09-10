@@ -70,14 +70,14 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride })
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)} className='mt-6 w-full px-8'>
                     <h4 className='text-xl font-semibold mb-2'>Enter OTP</h4>
-                    <div className='flex justify-between gap-3 mt-3 items-center'>
+                    <div className='flex justify-between md:justify-center gap-3 mt-3 items-center'>
                         {[0, 1, 2, 3].map((index) => (
                             <input
                                 key={index}
                                 type='number'
                                 inputMode='numeric'
                                 maxLength={1}
-                                className='bg-[#eee] text-center text-xl font-semibold rounded-lg aspect-square w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                                className='bg-[#eee] text-center text-xl font-semibold rounded-lg aspect-square w-full h-auto md:w-20 md:h-20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                                 {...register(`otp${index}`, {
                                     required: 'Enter all OTP digits',
                                     pattern: { value: /^[0-9]$/, message: 'OTP must contain only numbers' },

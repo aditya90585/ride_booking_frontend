@@ -63,10 +63,10 @@ const UserSignup = () => {
 
 
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-gray-950">
+    <div className="min-h-dvh w-full overflow-hidden bg-gray-950">
       <div
         className="
-                    relative flex min-h-screen w-full
+                    relative flex min-h-dvh w-full
                     items-center justify-center
                     [scrollbar-width:none]
                     min-[820px]:items-center

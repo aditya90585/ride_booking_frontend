@@ -134,7 +134,7 @@ const CaptainRiding = () => {
 
 
   return (
-    <div className='h-screen'>
+    <div className='h-dvh'>
       <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>
         <img className='w-16' src={logoWithText} alt="logo" />
         <Link to='/captain-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full'>

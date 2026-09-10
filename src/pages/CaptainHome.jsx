@@ -82,7 +82,7 @@ const CaptainHome = () => {
         rideId: ride._id
       })
       console.log(response)
-      navigate("/going-to-pickup",{ state: { ride:response.data } })
+      navigate("/going-to-pickup", { state: { ride: response.data } })
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
@@ -92,14 +92,14 @@ const CaptainHome = () => {
   }
 
   return (
-    <div className='h-screen'>
-      <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>
+    <div className='h-dvh relative flex flex-col justify-between items-center'>
+      <div className='absolute p-6 top-0 flex items-center justify-between w-screen'>
         <img className='w-16' src={logoWithText} alt="logo" />
         <Link to='/captain-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full relative z-3'>
           <FaHome />
         </Link>
       </div>
-      <div className='h-3/5'>
+      <div className='h-3/5 w-full'>
         {/* <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" /> */}
         {location && (
           <Map
@@ -109,7 +109,7 @@ const CaptainHome = () => {
           />
         )}
       </div>
-      <div className='h-2/5 p-6 relative z-3 bg-white'>
+      <div className='h-fit w-full p-6 relative z-3 bg-white'>
         <CaptainDetails />
       </div>
       <div ref={RidePopUpRef} className='fixed w-full z-10 bottom-0 translate-y-full  bg-white rounded-lg px-3 py-10 pt-12'>
@@ -119,13 +119,7 @@ const CaptainHome = () => {
           confirmRide={confirmRide}
         />
       </div>
-      {/* <div ref={ConfirmRidePopUpRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full  bg-white px-3 py-10 pt-12'>
-        <ConfirmRidePopUp
-          setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
-          setRidePopUpPanel={setRidePopUpPanel}
-          ride={ride}
-        />
-      </div> */}
+
     </div>
   )
 }
