@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { SocketContext } from '../context/SocketContext'
 import axiosInstance from '../lib/axios'
 import Map from '../components/Map.jsx'
+import { useSelector } from 'react-redux'
 
 const WaitingForDriver = () => {
     const navigate = useNavigate()
@@ -12,7 +13,12 @@ const WaitingForDriver = () => {
     const ride = routeLocation?.state?.ride
     const [captainLocation, setcaptainLocation] = useState({})
     const { socket } = useContext(SocketContext)
+    const userData = useSelector
+        ((state) => state.user.userData)
     const [route, setRoute] = useState(null)
+    useEffect(() => {
+        socket.emit("join", { userId: userData._id, userType: "user" })
+    }, [])
 
     useEffect(() => {
         const handleCaptainLocation = (data) => {

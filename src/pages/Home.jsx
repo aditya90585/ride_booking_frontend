@@ -40,6 +40,7 @@ const Home = () => {
   const [activeField, setActiveField] = useState(null)
   const [fare, setFare] = useState({})
   const [vehicleType, setVehicleType] = useState(null)
+  const [paymentMethod, setPaymentMethod] = useState("cash")
   const userData = useSelector((state) => state.user.userData)
   const [ride, setRide] = useState({})
 
@@ -286,10 +287,11 @@ const Home = () => {
       const response = await axiosInstance.post("/ride/create", {
         pickupLocation: pickup,
         destination,
-        vehicleType
+        vehicleType,
+        paymentMethod
       })
 
-    } catch (error) {
+    } catch (err) {
       toast.error(
         err.response?.data?.message ||
         "unable to create ride, please try again later"
@@ -437,6 +439,8 @@ const Home = () => {
             destination={destination}
             fare={fare}
             vehicleType={vehicleType}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
             createRide={createRide}
           />
         </div>

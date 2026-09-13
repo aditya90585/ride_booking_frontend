@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react'
+import { Banknote, ChevronDown, CreditCard } from 'lucide-react'
 import React from 'react'
 import Car from "../assets/car.png"
 import Bike from "../assets/bike.png"
@@ -9,7 +9,7 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { FaRupeeSign } from "react-icons/fa";
 
 
-const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound,pickup,destination,fare,vehicleType ,createRide}) => {
+const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound, pickup, destination, fare, vehicleType, paymentMethod, setPaymentMethod, createRide }) => {
     return (
         <div>
             <span onClick={() => {
@@ -39,14 +39,35 @@ const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound,pickup,destinati
                         <FaRupeeSign />
                         <div>
                             <h3 className='text-lg font-medium'>₹{fare[vehicleType]}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{paymentMethod === "cash" ? "Pay with cash" : "Pay online"}</p>
                         </div>
+                    </div>
+                </div>
+                <div className='w-full mt-4'>
+                    <p className='text-sm font-semibold text-gray-700 mb-2'>Payment method</p>
+                    <div className='grid grid-cols-2 gap-3'>
+                        <button
+                            type='button'
+                            onClick={() => setPaymentMethod("cash")}
+                            className={`flex items-center justify-center gap-2 rounded-xl border-2 p-3 font-semibold transition-colors ${paymentMethod === "cash" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 text-gray-500"}`}
+                        >
+                            <Banknote size={20} />
+                            Cash
+                        </button>
+                        <button
+                            type='button'
+                            onClick={() => setPaymentMethod("online")}
+                            className={`flex items-center justify-center gap-2 rounded-xl border-2 p-3 font-semibold transition-colors ${paymentMethod === "online" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 text-gray-500"}`}
+                        >
+                            <CreditCard size={20} />
+                            Online
+                        </button>
                     </div>
                 </div>
                 <button onClick={() => {
                     setVehicleFound(true)
                     setConfirmRidePanelOpen(false)
-                    createRide()
+                    createRide(paymentMethod)
                 }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
             </div>
         </div>

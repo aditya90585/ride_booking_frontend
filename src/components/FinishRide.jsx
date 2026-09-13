@@ -1,9 +1,10 @@
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Home } from 'lucide-react'
 import React from 'react'
 import { FaLocationCrosshairs, FaMapLocationDot, FaRupeeSign } from 'react-icons/fa6'
+import { useNavigate } from 'react-router-dom'
 
-const FinishRide = ({ setFinishRidePanel, endRide ,ride}) => {
-
+const FinishRide = ({ setFinishRidePanel, endRide, ride, confirmCashPayment }) => {
+  const navigate = useNavigate()
   return (
     <div>
       <span onClick={() => {
@@ -38,16 +39,49 @@ const FinishRide = ({ setFinishRidePanel, endRide ,ride}) => {
           </div>
           <div className='flex items-center gap-5 p-3'>
             <FaRupeeSign />
+
             <div>
-              <h3 className='text-lg font-medium'>₹{ride?.fare}</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+              <h3 className='text-lg font-medium'>
+                ₹{ride?.fare}
+              </h3>
+
+              <p className='text-sm -mt-1 text-gray-600'>
+                {ride?.paymentMethod === "cash"
+                  ? "Cash"
+                  : "Online"}
+              </p>
             </div>
           </div>
         </div>
         <div className='flex justify-center items-center w-full gap-x-2'>
-          <button onClick={() => {
-            endRide()
-          }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Finish Ride</button>
+          {ride?.status === "completed" ? (
+            ride?.paymentStatus === "paid" ? (
+              <button
+                onClick={() => navigate("/captain-home")}
+                className='w-full bg-black flex  justify-center items-center gap-x-2 text-white font-semibold p-3 rounded-lg'
+              >
+               Done
+              </button>
+            ) : ride?.paymentMethod === "cash" ? (
+              <button
+                onClick={confirmCashPayment}
+                className='w-full bg-green-600 text-white font-semibold p-3 rounded-lg'
+              >
+                Cash Received
+              </button>
+            ) : (
+              <div className='w-full text-center bg-yellow-100 text-yellow-800 p-3 rounded-lg'>
+                Waiting for passenger payment...
+              </div>
+            )
+          ) : (
+            <button
+              onClick={endRide}
+              className='w-full bg-black text-white font-semibold p-3 rounded-lg'
+            >
+              Finish Ride
+            </button>
+          )}
         </div>
 
       </div>

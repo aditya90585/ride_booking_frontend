@@ -7,6 +7,7 @@ import { SocketContext } from '../context/SocketContext'
 import { toast } from 'react-toastify'
 import Map from '../components/Map'
 import axiosInstance from '../lib/axios'
+import { useSelector } from 'react-redux'
 
 const Riding = () => {
     const location = useLocation()
@@ -14,9 +15,20 @@ const Riding = () => {
     const navigate = useNavigate()
 
     const { socket } = useContext(SocketContext)
+    const userData = useSelector((state) => state.user.userData)
 
     const [captainLocation, setcaptainLocation] = useState({})
     const [route, setRoute] = useState(null)
+
+    const [canDoPayment, setcanDoPayment] = useState(false)
+    const [paymentState, setPaymentState] = useState("idle");
+
+    useEffect(() => {
+        if (!userData?._id) return;
+
+        socket.emit("join", { userId: userData._id, userType: "user" })
+    }, [userData])
+
 
 
     useEffect(() => {
@@ -68,13 +80,215 @@ const Riding = () => {
     useEffect(() => {
         socket.on("ride-ended", () => {
             toast.success("Ride ended successfully!")
-            navigate("/home")
+            if (rideData?.paymentMethod === "online") {
+                setPaymentState("idle");
+            } else {
+                setPaymentState("cash-pending")
+            }
         })
         return () => {
             socket.off("ride-ended")
         }
-    }, [])
+    }, [rideData?.paymentMethod])
 
+    useEffect(() => {
+        const handleCashPaymentReceived = (data) => {
+            console.log("Cash payment received:", data)
+
+            setPaymentState("success")
+
+            toast.success("Cash payment confirmed!")
+        }
+
+        socket.on(
+            "cash-payment-received",
+            handleCashPaymentReceived
+        )
+
+        return () => {
+            socket.off(
+                "cash-payment-received",
+                handleCashPaymentReceived
+            )
+        }
+    }, [socket])
+
+    const handlePayment = async () => {
+        if (paymentState === "processing") return;
+
+        try {
+            setPaymentState("processing");
+
+            const response = await axiosInstance.post(
+                "/payment/create-order",
+                {
+                    rideId: rideData?._id
+                }
+            );
+
+            const {
+                orderId,
+                amount,
+                currency
+            } = response.data.payment;
+
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+                amount,
+                currency,
+
+                name: "Wayfare",
+                description: "Ride Payment",
+
+                order_id: orderId,
+
+                handler: async function (paymentResponse) {
+                    try {
+                        console.log(
+                            "Payment Response:",
+                            paymentResponse
+                        );
+
+                        const response =
+                            await axiosInstance.post(
+                                "/payment/verify",
+                                {
+                                    razorpay_order_id:
+                                        paymentResponse.razorpay_order_id,
+
+                                    razorpay_payment_id:
+                                        paymentResponse.razorpay_payment_id,
+
+                                    razorpay_signature:
+                                        paymentResponse.razorpay_signature
+                                }
+                            );
+
+                        console.log(
+                            "Verification response:",
+                            response.data
+                        );
+
+                        if (response.data.success) {
+                            setPaymentState("success");
+
+                            toast.success(
+                                "Payment successful!"
+                            );
+                        }
+
+                    } catch (error) {
+                        console.error(
+                            "Payment verification error:",
+                            error
+                        );
+
+                        setPaymentState("failed");
+
+                        toast.error(
+                            error.response?.data?.message ||
+                            "Payment verification failed"
+                        );
+                    }
+                },
+
+                theme: {
+                    color: "#000000"
+                }
+            };
+
+            const razorpay =
+                new window.Razorpay(options);
+
+            // Razorpay reports failed payments here
+            razorpay.on(
+                "payment.failed",
+                function (response) {
+                    console.error(
+                        "Razorpay payment failed:",
+                        response.error
+                    );
+
+                    setPaymentState("failed");
+
+                    toast.error(
+                        response.error?.description ||
+                        "Payment failed. Please try again."
+                    );
+                }
+            );
+
+            // User closes the Razorpay checkout.
+            // This is NOT necessarily a failed payment.
+            razorpay.on(
+                "modal.closed",
+                function () {
+                    console.log(
+                        "Razorpay checkout closed"
+                    );
+
+                    // Only reset processing state.
+                    // Don't mark payment as failed.
+                    setPaymentState((currentState) =>
+                        currentState === "processing"
+                            ? "idle"
+                            : currentState
+                    );
+                }
+            );
+
+            razorpay.open();
+
+        } catch (error) {
+            console.error(
+                "Payment error:",
+                error
+            );
+
+            setPaymentState("failed");
+
+            toast.error(
+                error.response?.data?.message ||
+                "Unable to start payment"
+            );
+        }
+    };
+
+
+
+
+    useEffect(() => {
+        const syncPaymentStatus = async () => {
+            if (!rideData?._id) return;
+
+            try {
+                const response = await axiosInstance.get(
+                    `/payment/status/${rideData._id}`
+                );
+
+                if (!response.data.success) return;
+
+                const status =
+                    response.data.ride.paymentStatus;
+                if (status === "paid") {
+                    setPaymentState("success");
+                } else if (status === "failed") {
+                    setPaymentState("failed");
+                } else {
+                    setPaymentState("idle");
+                }
+
+            } catch (error) {
+                console.error(
+                    "Failed to sync payment status:",
+                    error
+                );
+            }
+        };
+
+        syncPaymentStatus();
+    }, [rideData?._id]);
 
     return (
         <div className='h-dvh w-screen overflow-hidden relative flex flex-col justify-between'>
@@ -123,11 +337,84 @@ const Riding = () => {
                         <FaRupeeSign />
                         <div>
                             <h3 className='text-lg font-medium'>₹{rideData?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'> {rideData?.paymentMethod === "online"
+                                ? "Online Payment"
+                                : "Cash"
+                            }</p>
                         </div>
                     </div>
                 </div>
-                <button className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Make a Payment</button>
+                {paymentState === "cash-pending" && (
+                    <div className="mt-5">
+                        <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg text-center">
+                            <h3 className="font-semibold text-lg">
+                                Pay ₹{rideData?.fare} in cash
+                            </h3>
+
+                            <p className="text-sm mt-1">
+                                Please give the fare to your captain.
+                            </p>
+
+                            <p className="text-sm mt-2 font-medium">
+                                Waiting for captain to confirm payment...
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {paymentState === "idle" && rideData?.paymentMethod === "online" && (
+                    <button
+                        onClick={handlePayment}
+                        className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'
+                    >
+                        Make a Payment
+                    </button>
+                )}
+
+                {paymentState === "processing" && (
+                    <button
+                        disabled
+                        className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg opacity-50 cursor-not-allowed'
+                    >
+                        Processing...
+                    </button>
+                )}
+
+                {paymentState === "failed" && (
+                    <div className="mt-5">
+                        <p className="text-center text-red-600 text-sm mb-3">
+                            Payment failed. Please try again.
+                        </p>
+
+                        <button
+                            onClick={handlePayment}
+                            className='w-full bg-green-600 text-white font-semibold p-2 rounded-lg'
+                        >
+                            Pay Again
+                        </button>
+                    </div>
+                )}
+
+                {paymentState === "success" && (
+                    <div className="mt-5">
+                        <div className="bg-green-100 text-green-700 p-4 rounded-lg text-center">
+                            <h3 className="font-semibold text-lg">
+                                Payment successful
+                            </h3>
+
+                            <p className="text-sm mt-1">
+                                Your ride payment has been completed.
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => navigate("/home")}
+                            className="w-full mt-3 bg-black text-white font-semibold p-2 rounded-lg"
+                        >
+                            Go Home
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )

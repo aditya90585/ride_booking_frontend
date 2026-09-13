@@ -12,6 +12,7 @@ import { toast } from 'react-toastify'
 import Map from '../components/Map'
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp'
 import { SocketContext } from '../context/SocketContext'
+import { useSelector } from 'react-redux'
 
 const GoToPickup = () => {
 
@@ -27,9 +28,14 @@ const GoToPickup = () => {
     const ConfirmRidePopUpRef = useRef(null)
 
     const { socket } = useContext(SocketContext)
+    const captainData = useSelector((state) => state.captain.captainData)
     const latestLocation = useRef(null);
 
+
+
+
     useEffect(() => {
+        socket.emit("join", { userId: captainData._id, userType: "captain" })
         if (!navigator.geolocation) {
             toast.error("Geolocation is not supported by your browser.");
             return;
@@ -42,7 +48,7 @@ const GoToPickup = () => {
         const watchId = navigator.geolocation.watchPosition(
             (position) => {
                 const { latitude, longitude, heading } = position.coords;
-             
+
                 latestLocation.current = {
                     latitude,
                     longitude,
@@ -80,7 +86,7 @@ const GoToPickup = () => {
 
             socket.emit("update-location-captain", {
                 captainId: rideData.captain._id,
-                userSocketId: rideData.user.socketId,
+                rideId: rideData?._id,
                 location: {
                     ltd: currentLocation.latitude,
                     lng: currentLocation.longitude,

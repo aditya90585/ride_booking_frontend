@@ -11,24 +11,36 @@ import axiosInstance from '../lib/axios'
 import { toast } from 'react-toastify'
 import Map from '../components/Map'
 import { SocketContext } from '../context/SocketContext'
+import { useSelector } from 'react-redux'
 
 const CaptainRiding = () => {
   const [finishRidePanel, setFinishRidePanel] = useState(false)
   const finishRidePanelRef = useRef(null)
   const routerLocation = useLocation()
-  const rideData = routerLocation?.state?.ride
+
+  const initialRide = routerLocation?.state?.ride
+
+  const [rideData, setRideData] = useState(initialRide)
+
+
   const navigate = useNavigate()
   const [captainLocation, setCaptainLocation] = useState(null);
   const [route, setRoute] = useState(null);
 
   const { socket } = useContext(SocketContext)
+  const captainData = useSelector((state) => state.captain.captainData)
+
+  const [paymentStatus, setPaymentStatus] = useState("pending");
+
+
 
   useEffect(() => {
+    socket.emit("join", { userId: captainData._id, userType: "captain" })
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser.");
       return;
     }
-  
+
     if (!rideData?.captain?._id || !rideData?.user?.socketId) {
       return
     }
@@ -36,21 +48,21 @@ const CaptainRiding = () => {
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
-        const { latitude, longitude,heading } = position.coords;
+        const { latitude, longitude, heading } = position.coords;
 
         setCaptainLocation({
           latitude,
           longitude,
           heading
         });
- 
+
         socket.emit('update-location-captain', {
           captainId: rideData?.captain?._id,
-          userSocketId: rideData?.user?.socketId,
+          rideId: rideData?._id,
           location: {
             ltd: position.coords.latitude,
             lng: position.coords.longitude,
-             heading: position.coords?.heading
+            heading: position.coords?.heading
           }
         })
       },
@@ -123,8 +135,8 @@ const CaptainRiding = () => {
       })
       if (res.status === 200) {
         toast.success("Ride ended successfully!")
-        setFinishRidePanel(false)
-        navigate("/captain-home")
+        setRideData(res.data)
+        // setFinishRidePanel(false) 
       }
     } catch (error) {
       console.error("Error ending ride:", error)
@@ -132,6 +144,50 @@ const CaptainRiding = () => {
     }
   }
 
+  const confirmCashPayment = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "/payment/confirm-cash",
+        {
+          rideId: rideData._id
+        }
+      )
+
+      if (res.data.success) {
+           setRideData(res.data.ride)
+        toast.success("Cash payment confirmed!")
+      }
+    } catch (error) {
+      console.error("Cash payment confirmation error:", error)
+
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to confirm cash payment"
+      )
+    }
+  }
+  
+useEffect(() => {
+    const handleOnlinePaymentReceived = (data) => {
+        console.log("Online payment received:", data);
+
+        setRideData(data);
+
+        toast.success("Payment received successfully!");
+    };
+
+    socket.on(
+        "online-payment-received",
+        handleOnlinePaymentReceived
+    );
+
+    return () => {
+        socket.off(
+            "online-payment-received",
+            handleOnlinePaymentReceived
+        );
+    };
+}, [socket]);
 
   return (
     <div className='h-dvh'>
@@ -177,6 +233,7 @@ const CaptainRiding = () => {
           setFinishRidePanel={setFinishRidePanel}
           ride={rideData}
           endRide={endRide}
+          confirmCashPayment={confirmCashPayment}
         />
       </div>
 
