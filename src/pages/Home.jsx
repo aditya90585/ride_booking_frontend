@@ -246,7 +246,7 @@ const Home = () => {
         }
       })
       setFare(res.data.fare)
-    } catch (error) {
+    } catch (err) {
       toast.error(
         err.response?.data?.message ||
         "unable to fetch fare, please try again later"
