@@ -1,5 +1,5 @@
-import { ChevronDown } from 'lucide-react'
-import React from 'react'
+import { ChevronDown, Loader2 } from 'lucide-react'
+import React, { useState } from 'react'
 import { FaLocationCrosshairs, FaMapLocationDot, FaRupeeSign } from 'react-icons/fa6'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -9,9 +9,13 @@ import { toast } from 'react-toastify'
 const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride }) => {
     const navigate = useNavigate()
     const { register, handleSubmit, setFocus, formState: { errors } } = useForm()
+    const [loading, setLoading] = useState(false)
+
 
     const onSubmit = async (data) => {
+        if(loading) return
         try {
+            setLoading(true)
             const res = await axiosInstance.post("/ride/start-ride", {
                 rideId: ride._id,
                 otp: `${data.otp0}${data.otp1}${data.otp2}${data.otp3}`
@@ -25,6 +29,9 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride })
         } catch (error) {
             console.error("Error starting ride:", error)
             toast.error("Failed to start ride. Please check the OTP and try again.")
+        }
+        finally{
+            setLoading(false)
         }
     }
 
@@ -64,7 +71,11 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride })
                         <FaRupeeSign />
                         <div>
                             <h3 className='text-lg font-medium'>₹{ride?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'>
+                                {ride?.paymentMethod === "cash"
+                                    ? "Cash"
+                                    : "Online"}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -96,8 +107,8 @@ const ConfirmRidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, ride })
                     {errors.otp0 && <p className='text-red-500 text-sm mt-2'>{errors.otp0.message}</p>}
 
                     <div className='flex justify-center items-center w-full gap-x-2'>
-                        <button type='submit' className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
-                        <button onClick={() => {
+                        <button type='submit' className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>{loading? <Loader2 className='animate-spin h-full mx-auto'/>:"Confirm"}</button>
+                        <button disabled={loading} onClick={() => {
                             setConfirmRidePopUpPanel(false)
                             // setRidePopUpPanel(false)
                         }} className='w-full mt-5 bg-red-500 text-white font-semibold p-2 rounded-lg'>Cancel</button>

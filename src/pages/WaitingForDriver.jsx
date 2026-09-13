@@ -6,6 +6,7 @@ import { SocketContext } from '../context/SocketContext'
 import axiosInstance from '../lib/axios'
 import Map from '../components/Map.jsx'
 import { useSelector } from 'react-redux'
+import { SiOpenstreetmap } from 'react-icons/si'
 
 const WaitingForDriver = () => {
     const navigate = useNavigate()
@@ -79,8 +80,8 @@ const WaitingForDriver = () => {
 
 
     return (
-        <div className="flex items-center justify-between flex-col h-dvh overflow-hidden w-full z-10 bottom-0  bg-white">
-            <div className='h-1/2 w-full'>
+        <div className="flex relative items-center justify-between flex-col h-dvh overflow-hidden w-full z-10 bottom-0  bg-white">
+            <div className='flex-1 w-full '>
                 {(captainLocation?.latitude && captainLocation?.longitude) ? (
                     <Map
                         className="absolute z-2"
@@ -90,15 +91,16 @@ const WaitingForDriver = () => {
                         heading={captainLocation.heading}
                     />
                 ) : (
-                    <img
-                        className="h-full w-full object-cover"
-                        src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d"
-                        alt="map-demo-image"
-                    />
+                    <div className='relative h-full  w-full'>
+                        <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+                        <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+                            < SiOpenstreetmap className='absolute top-40 size-20 text-gray-100 animate-pulse' />
+                        </div>
+                    </div>
                 )}
 
             </div>
-            <div className='h-fit w-full px-6 py-2 relative z-4 bg-white'>
+            <div className='h-fit w-full px-6 py-2 absolute bottom-0 z-4 bg-white'>
                 <h3 className='text-2xl font-semibold mb-5 text-center'>Driver is on the way</h3>
                 <div className='flex items-center justify-between'>
                     <img className='h-30' src={Car} alt="" />
@@ -128,7 +130,11 @@ const WaitingForDriver = () => {
                         <FaRupeeSign />
                         <div>
                             <h3 className='text-lg font-medium'>₹{ride?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'>
+                                {ride?.paymentMethod === "cash"
+                                    ? "Cash"
+                                    : "Online"}
+                            </p>
                         </div>
                     </div>
 

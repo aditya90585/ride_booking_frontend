@@ -12,6 +12,7 @@ import { SocketContext } from '../context/SocketContext'
 import axiosInstance from '../lib/axios'
 import { toast } from 'react-toastify'
 import Map from '../components/Map'
+import { SiOpenstreetmap } from 'react-icons/si'
 
 const CaptainHome = () => {
   const navigate = useNavigate()
@@ -20,6 +21,7 @@ const CaptainHome = () => {
 
   const captainData = useSelector((state) => state.captain.captainData)
   const [ride, setRide] = useState({})
+  const [confirmRideLoading, setConfirmRideLoading] = useState(false)
 
   const { socket } = useContext(SocketContext)
 
@@ -77,7 +79,9 @@ const CaptainHome = () => {
 
 
   const confirmRide = async () => {
+    if (confirmRideLoading) return
     try {
+      setConfirmRideLoading(true)
       const response = await axiosInstance.post("/ride/confirm-ride", {
         rideId: ride._id
       })
@@ -89,6 +93,9 @@ const CaptainHome = () => {
         "unable to confirm ride, please try again later"
       );
     }
+    finally {
+      setConfirmRideLoading(false)
+    }
   }
 
   return (
@@ -99,17 +106,23 @@ const CaptainHome = () => {
           <FaHome />
         </Link>
       </div>
-      <div className='h-3/5 w-full'>
+      <div className='h-full w-full'>
         {/* <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" /> */}
-        {location && (
+        {location ? (
           <Map
             className="absolute z-2"
             latitude={location.latitude}
             longitude={location.longitude}
           />
-        )}
+        ) : <div className='relative h-full  w-full'>
+          <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+          <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+            < SiOpenstreetmap className='absolute top-40 size-20 text-gray-100 animate-pulse' />
+          </div>
+        </div>
+        }
       </div>
-      <div className='h-fit w-full p-6 relative z-3 bg-white'>
+      <div className='h-fit w-full absolute bottom-0 p-6 relative z-3 bg-white'>
         <CaptainDetails />
       </div>
       <div ref={RidePopUpRef} className='fixed w-full z-10 bottom-0 translate-y-full  bg-white rounded-lg px-3 py-10 pt-12'>
@@ -117,6 +130,7 @@ const CaptainHome = () => {
           ride={ride}
           setRidePopUpPanel={setRidePopUpPanel}
           confirmRide={confirmRide}
+          confirmRideLoading={confirmRideLoading}
         />
       </div>
 

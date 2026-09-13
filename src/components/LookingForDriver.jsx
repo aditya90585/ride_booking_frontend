@@ -6,7 +6,7 @@ import Bike from "../assets/bike.png"
 import Auto from "../assets/auto.png"
 
 
-const LookingForDriver = ({ setVehicleFound, pickup, destination, fare, vehicleType }) => {
+const LookingForDriver = ({ setVehicleFound, pickup, destination, fare, vehicleType, ride }) => {
 
   return (
     <div>
@@ -15,6 +15,13 @@ const LookingForDriver = ({ setVehicleFound, pickup, destination, fare, vehicleT
       }} className='flex justify-center items-center text-2xl text-gray-600 cursor-pointer rounded-lg p-2'>
         <ChevronDown />
       </span>
+      {/* <div className='w-full h-1 bg-black rounded-lg my-2'><div className=' h-full w-[40%]  bg-white rounded-lg'></div></div>
+       */}
+
+      <div className="w-full h-1 bg-linear-to-r from-blue-400 to-blue-900 rounded-lg my-2 overflow-hidden">
+        <div className="h-full w-[40%] bg-linear-to-r from-blue-300 to-blue-500 rounded-lg animate-[slide_2s_ease-in-out_infinite]"></div>
+      </div>
+
       <h3 className='text-2xl font-semibold mb-5'>Looking for a Driver</h3>
       <div className='flex flex-col w-full justify-between items-center '>
         <img className='h-60' src={Car} alt="vehicle" />
@@ -37,7 +44,10 @@ const LookingForDriver = ({ setVehicleFound, pickup, destination, fare, vehicleT
             <FaRupeeSign />
             <div>
               <h3 className='text-lg font-medium'>₹{fare[vehicleType]}</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+              <p className='text-sm -mt-1 text-gray-600'>
+                {ride?.paymentMethod === "cash"
+                  ? "Cash"
+                  : "Online"}</p>
             </div>
           </div>
         </div>

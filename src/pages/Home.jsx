@@ -7,7 +7,10 @@ import LocationSearchPanel from '../components/LocationSearchPanel'
 import VehiclePanel from '../components/VehiclePanel'
 import ConfirmRide from '../components/ConfirmRide'
 import LookingForDriver from '../components/LookingForDriver'
-import WaitingForDriver from '../components/WaitingForDriver'
+
+import { SiOpenstreetmap } from "react-icons/si";
+import { RiLoader2Line } from "react-icons/ri";
+
 import axiosInstance from '../lib/axios'
 import { toast } from 'react-toastify'
 import { SocketContext } from '../context/SocketContext'
@@ -30,8 +33,6 @@ const Home = () => {
   const vehicleFoundRef = useRef(null)
   const [vehicleFound, setVehicleFound] = useState(false)
 
-  const waitingForDriverRef = useRef(null)
-  const [waitingForDriver, setWaitingForDriver] = useState(false)
 
   const [pickup, setPickup] = useState('')
   const [destination, setDestination] = useState('')
@@ -46,6 +47,12 @@ const Home = () => {
 
   const [location, setLocation] = useState(null);
 
+  const [isPickLoading, setIsPickLoading] = useState(false)
+  const [isDestinationLoading, setIsDestinationLoading] = useState(false)
+  const [isCurrentLocationLoading, setIsCurrentLocationLoading] = useState(false)
+  const [isFareLoading, setIsFareLoading] = useState(false)
+  const [isCreatingRide, setIsCreatingRide] = useState(false)
+
   const { socket } = useContext(SocketContext)
 
   useEffect(() => {
@@ -56,7 +63,7 @@ const Home = () => {
     socket.on("ride-confirmed", (data) => {
       setRide(data)
       setVehicleFound(false)
-      navigate("/waiting-for-driver", { state: { ride:data } })
+      navigate("/waiting-for-driver", { state: { ride: data } })
     })
 
     return () => {
@@ -66,7 +73,6 @@ const Home = () => {
 
   useEffect(() => {
     socket.on("ride-started", (data) => {
-      setWaitingForDriver(false)
       navigate("/riding", { state: { ride: data } })
     })
 
@@ -157,62 +163,6 @@ const Home = () => {
   }, [vehicleFound])
 
 
-  // useGSAP(function () {
-  //   if (waitingForDriver) {
-  //     gsap.to(waitingForDriverRef.current, {
-  //       translateY: 0
-  //     })
-  //   } else {
-  //     gsap.to(waitingForDriverRef.current, {
-  //       translateY: "100%"
-  //     })
-  //   }
-  // }, [waitingForDriver])
-
-  // function debounce(func, delay) {
-  //   let timeoutId;
-  //   return (...args) => {
-  //     clearTimeout(timeoutId);
-  //     timeoutId = setTimeout(() => func(...args), delay);
-  //   };
-  // };
-
-  // const handlePickupChange = async (e) => {
-  //   setPickup(e.target.value)
-  //   try {
-  //     if (e.target.value.length < 3) return
-  //     const response = await axiosInstance.get(`/maps/get-suggestions`, {
-  //       params: { input: e.target.value },
-  //     })
-  //     console.log(response.data)
-  //     setPickupSuggestions(response.data.suggestion)
-  //   } catch(err) {
-  //     toast.error(
-  //       err.response?.data?.message ||
-  //       "unable to fetch suggestions, please try again later"
-  //     );
-  //   }
-  // }
-
-  // const handleDestinationChange = async (e) => {
-  //   setDestination(e.target.value)
-  //   try {
-  //     if (e.target.value.length < 3) return
-  //     const response = await axiosInstance.get(`/maps/get-suggestions`, {
-  //       params: { input: e.target.value },
-  //     })
-  //     console.log(response.data)
-  //     setDestinationSuggestions(response.data.suggestion)
-  //   } catch(err) {
-  //     toast.error(
-  //       err.response?.data?.message ||
-  //       "unable to fetch suggestions, please try again later"
-  //     );
-  //   }
-  // }
-
-
-
   const debounce = (func, delay) => {
     let timer;
     return (...args) => {
@@ -226,6 +176,18 @@ const Home = () => {
       if (type === "pickup") setPickupSuggestions([]);
       else setDestinationSuggestions([]);
       return;
+    }
+
+    if (type == "pickup" && isPickLoading) {
+      return
+    } else if (type == "destination" && isDestinationLoading) {
+      return
+    }
+
+    if (type == "pickup") {
+      setIsPickLoading(true)
+    } else if (type == "destination") {
+      setIsDestinationLoading(true)
     }
 
     try {
@@ -243,6 +205,14 @@ const Home = () => {
         err.response?.data?.message ||
         "Unable to fetch suggestions, please try again later"
       );
+    }
+    finally {
+
+      if (type == "pickup") {
+        setIsPickLoading(false)
+      } else if (type == "destination") {
+        setIsDestinationLoading(false)
+      }
     }
   };
 
@@ -266,7 +236,9 @@ const Home = () => {
   const findTrip = async () => {
     setVehiclePanelOpen(true)
     setPanelOpen(false)
+    if (isFareLoading) return
     try {
+      setIsFareLoading(true)
       const res = await axiosInstance.get("/ride/get-fare", {
         params: {
           origin: pickup,
@@ -279,11 +251,15 @@ const Home = () => {
         err.response?.data?.message ||
         "unable to fetch fare, please try again later"
       );
+    } finally {
+      setIsFareLoading(false)
     }
   }
 
   const createRide = async () => {
+    if (isCreatingRide) return
     try {
+      setIsCreatingRide(true)
       const response = await axiosInstance.post("/ride/create", {
         pickupLocation: pickup,
         destination,
@@ -291,15 +267,26 @@ const Home = () => {
         paymentMethod
       })
 
+      if (response.status == 201) {
+        setRide(response.data.ride)
+        setVehicleFound(true)
+        setConfirmRidePanelOpen(false)
+      }
+
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
         "unable to create ride, please try again later"
       );
     }
+    finally {
+      setIsCreatingRide(false)
+    }
   }
 
   const handleCurrentLocation = () => {
+    if (isCurrentLocationLoading) return
+    setIsCurrentLocationLoading(true)
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser.");
       return;
@@ -315,6 +302,7 @@ const Home = () => {
         });
 
         try {
+
           const response = await axiosInstance.get("/maps/reverse-geocode", {
             params: {
               lat: latitude,
@@ -324,10 +312,12 @@ const Home = () => {
 
           setPickup(response.data.address);
           setPickupSuggestions([]);
-          setPanelOpen(false);
         } catch (error) {
           console.error("Reverse geocoding failed:", error);
           toast.error("Unable to get your current address.");
+        }
+        finally {
+          setIsCurrentLocationLoading(false)
         }
       },
       (error) => {
@@ -347,6 +337,7 @@ const Home = () => {
         maximumAge: 0
       }
     );
+
   };
 
 
@@ -363,7 +354,12 @@ const Home = () => {
             latitude={location.latitude}
             longitude={location.longitude}
           />
-        ) : <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+        ) : <div className='relative h-full w-full'>
+          <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+          <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+            < SiOpenstreetmap className='size-20 text-gray-100 animate-pulse' />
+          </div>
+        </div>
         }
       </div>
       <div className='h-dvh  w-full absolute top-0 flex flex-col justify-end'>
@@ -376,33 +372,52 @@ const Home = () => {
             </span></h4>
 
           <form className='relative'>
-            <div className="line absolute h-16 w-1 top-[60%] -translate-y-[30%] left-5 bg-gray-500 rounded-full"></div>
-
-            <button
+            <div className="line block md:hidden absolute  z-5 h-16 w-1 top-[60%] -translate-y-[30%] left-5 bg-gray-500 rounded-full"></div>
+            {isCurrentLocationLoading ? <button
+              type="button"
+              className="flex items-center gap-2 mt-3 ml-2 text-sm font-medium text-blue-400 cursor-pointer animate-pulse"
+            >
+              <SiOpenstreetmap size={16} />
+              Fetching your Location ...
+            </button> : <button
               type="button"
               onClick={handleCurrentLocation}
               className="flex items-center gap-2 mt-3 ml-2 text-sm font-medium text-blue-600 cursor-pointer"
             >
               <MapPin size={16} />
               Use my current location
-            </button>
-            <input onClick={() => {
-              setPanelOpen(true)
-              setActiveField("pickup")
-            }} value={pickup} onChange={(e) => handlePickupChange(e)}
-              placeholder='Add a pick-up location'
-              type="text"
-              className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-6' />
+            </button>}
 
+            <div className='md:flex block justify-center items-center md:gap-x-2'>
 
-            <input onClick={() => {
-              setPanelOpen(true)
-              setActiveField("destination")
-            }} value={destination}
-              onChange={(e) => handleDestinationChange(e)}
-              placeholder='Enter your destination'
-              type="text"
-              className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-4' />
+              <div className='flex w-full items-center relative z-3'>
+
+                <input onClick={() => {
+                  setPanelOpen(true)
+                  setActiveField("pickup")
+                }} value={pickup} onChange={(e) => handlePickupChange(e)}
+                  placeholder='Add a pick-up location'
+                  type="text"
+                  className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-6 md:mt-6' />
+                {isPickLoading && <span><RiLoader2Line className=' absolute right-4 animate-spin mt-1' /></span>}
+
+              </div>
+
+              <div className='flex items-center relative z-3 w-full'>
+
+                <input onClick={() => {
+                  setPanelOpen(true)
+                  setActiveField("destination")
+                }} value={destination}
+                  onChange={(e) => handleDestinationChange(e)}
+                  placeholder='Enter your destination'
+                  type="text"
+                  className='w-full bg-[#eee] px-12 py-2 text-lg rounded-lg mt-4 md:mt-6' />
+
+                {isDestinationLoading && <span><RiLoader2Line className=' absolute right-4 animate-spin mt-1' /></span>}
+
+              </div>
+            </div>
 
           </form>
         </div>
@@ -426,6 +441,7 @@ const Home = () => {
             setVehiclePanelOpen={setVehiclePanelOpen}
             setConfirmRidePanelOpen={setConfirmRidePanelOpen}
             fare={fare}
+            isFareLoading={isFareLoading}
             setVehicleType={setVehicleType}
           />
         </div>
@@ -442,6 +458,7 @@ const Home = () => {
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
             createRide={createRide}
+            isCreatingRide={isCreatingRide}
           />
         </div>
 
@@ -453,15 +470,10 @@ const Home = () => {
             destination={destination}
             fare={fare}
             vehicleType={vehicleType}
+            ride={ride}
           />
         </div>
 
-
-        {/* <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-6 py-2 pt-6' >
-          <WaitingForDriver setWaitingForDriver={setWaitingForDriver}
-            ride={ride}
-          />
-        </div> */}
       </div>
     </div>
   )

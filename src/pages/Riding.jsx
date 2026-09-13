@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import Map from '../components/Map'
 import axiosInstance from '../lib/axios'
 import { useSelector } from 'react-redux'
+import { SiOpenstreetmap } from 'react-icons/si'
 
 const Riding = () => {
     const location = useLocation()
@@ -296,7 +297,7 @@ const Riding = () => {
                 <img src={logoWithText} className='h-full' alt="logo" />
             </div>
 
-            <div className='h-1/2 w-full'>
+            <div className='flex-1 w-full relative'>
                 {/* <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" /> */}
                 {(captainLocation?.latitude && captainLocation?.longitude) ? (
                     <Map
@@ -307,15 +308,16 @@ const Riding = () => {
                         heading={captainLocation.heading}
                     />
                 ) : (
-                    <img
-                        className="h-full w-full object-cover"
-                        src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d"
-                        alt="map-demo-image"
-                    />
+                    <div className='relative h-full  w-full'>
+                        <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+                        <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+                            < SiOpenstreetmap className='absolute top-40 size-20 text-gray-100 animate-pulse' />
+                        </div>
+                    </div>
                 )}
 
             </div>
-            <div className='h-fit p-6 py-8 relative z-3 bg-white'>
+            <div className='h-fit p-6 py-8 absolute w-full bottom-0 z-3 bg-white'>
                 <div className='flex items-center justify-between'>
                     <img className='h-30' src={Car} alt="" />
                     <div className='text-right'>

@@ -1,4 +1,4 @@
-import { Banknote, ChevronDown, CreditCard } from 'lucide-react'
+import { Banknote, ChevronDown, CreditCard, Loader2 } from 'lucide-react'
 import React from 'react'
 import Car from "../assets/car.png"
 import Bike from "../assets/bike.png"
@@ -9,7 +9,7 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { FaRupeeSign } from "react-icons/fa";
 
 
-const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound, pickup, destination, fare, vehicleType, paymentMethod, setPaymentMethod, createRide }) => {
+const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound, pickup, destination, fare, vehicleType, paymentMethod, setPaymentMethod, createRide, isCreatingRide }) => {
     return (
         <div>
             <span onClick={() => {
@@ -19,7 +19,7 @@ const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound, pickup, destina
             </span>
             <h3 className='text-2xl font-semibold mb-5'>Confirm Your Ride</h3>
             <div className='flex flex-col w-full justify-between items-center '>
-                <img className='h-60' src={vehicleType === "car" ? Car : vehicleType === "moto" ? Bike : Auto} alt="vehicle" />
+                <img className='h-40' src={vehicleType === "car" ? Car : vehicleType === "moto" ? Bike : Auto} alt="vehicle" />
                 <div className='w-full mt-5'>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <FaLocationCrosshairs />
@@ -65,10 +65,8 @@ const Confirmride = ({ setConfirmRidePanelOpen, setVehicleFound, pickup, destina
                     </div>
                 </div>
                 <button onClick={() => {
-                    setVehicleFound(true)
-                    setConfirmRidePanelOpen(false)
-                    createRide(paymentMethod)
-                }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
+                    createRide()
+                }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>{isCreatingRide ? <Loader2 className='h-full animate-spin mx-auto' /> : "Confirm"}</button>
             </div>
         </div>
     )

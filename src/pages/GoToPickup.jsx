@@ -13,6 +13,7 @@ import Map from '../components/Map'
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp'
 import { SocketContext } from '../context/SocketContext'
 import { useSelector } from 'react-redux'
+import { SiOpenstreetmap } from 'react-icons/si'
 
 const GoToPickup = () => {
 
@@ -103,57 +104,6 @@ const GoToPickup = () => {
         };
     }, [rideData, socket]);
 
-    // useEffect(() => {
-    //     if (!navigator.geolocation) {
-    //         toast.error("Geolocation is not supported by your browser.");
-    //         return;
-    //     }
-
-    //     if (!rideData?.captain?._id || !rideData?.user?.socketId) {
-    //         return
-    //     }
-
-    //     const watchId = navigator.geolocation.watchPosition(
-    //         (position) => {
-    //             const { latitude, longitude } = position.coords;
-
-    //             setCaptainLocation({
-    //                 latitude,
-    //                 longitude
-    //             });
-    //             socket.emit('update-location-captain', {
-    //                 captainId: rideData?.captain?._id,
-    //                 userSocketId: rideData?.user?.socketId,
-    //                 location: {
-    //                     ltd: position.coords.latitude,
-    //                     lng: position.coords.longitude
-    //                 }
-    //             })
-
-    //         },
-    //         (error) => {
-    //             console.error("Captain location error:", error);
-
-    //             if (error.code === error.PERMISSION_DENIED) {
-    //                 toast.error("Please allow location access.");
-    //             } else if (error.code === error.TIMEOUT) {
-    //                 toast.error("Unable to get your location.");
-    //             }
-    //         },
-    //         {
-    //             enableHighAccuracy: true,
-    //             maximumAge: 5000,
-    //             timeout: 10000
-    //         }
-    //     );
-
-
-
-    //     return () => {
-    //         navigator.geolocation.clearWatch(watchId);
-    //     };
-    // }, [rideData]);
-
 
     useEffect(() => {
         const getRoute = async () => {
@@ -221,11 +171,12 @@ const GoToPickup = () => {
                         heading={captainLocation.heading}
                     />
                 ) : (
-                    <img
-                        className="h-full w-full object-cover"
-                        src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d"
-                        alt=""
-                    />
+                    <div className='relative h-full  w-full'>
+                        <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+                        <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+                            < SiOpenstreetmap className='absolute top-40 size-20 text-gray-100 animate-pulse' />
+                        </div>
+                    </div>
                 )}
             </div>
 
@@ -240,14 +191,6 @@ const GoToPickup = () => {
                 <h4 className='text-xl font-semibold'>{'4 KM away'}</h4>
                 <button className=' bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>Verify OTP</button>
             </div>
-
-            {/* <div ref={finishRidePanelRef} className='fixed w-full z-[500] bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-        <FinishRide
-          setFinishRidePanel={setFinishRidePanel}
-          ride={rideData}
-          endRide={endRide}
-        />
-      </div> */}
 
             <div ref={ConfirmRidePopUpRef} className='fixed w-full h-dvh z-10 bottom-0 translate-y-full  bg-white px-3 py-10 pt-12'>
                 <ConfirmRidePopUp

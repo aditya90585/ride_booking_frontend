@@ -221,3 +221,9 @@ input:-internal-autofill-selected {
   /* Forces your preferred text color (e.g., slate-900) */
   -webkit-text-fill-color: #0f172a !important;
 }
+
+
+@keyframes slide {
+  0%, 100% { transform: translateX(-40%); }
+  50% { transform: translateX(200%); } /* Adjust 150% based on container width */
+}

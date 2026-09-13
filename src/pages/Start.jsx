@@ -83,7 +83,7 @@ const navigate = useNavigate()
     
         <SplitText
           text="WAYFARE"
-          className="text-[25vw]  absolute lg:top-[10%] top-[20%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center"
+          className="md:text-[25vw] text-[24vw]  absolute lg:top-[10%] top-[20%] z-4 leading-[0.85] whitespace-nowrap font-extrabold font-mono select-none transform lg:scale-y-120 md:scale-y-220 scale-y-240 origin-center"
           delay={100}
           duration={1.8}
           ease="power3.out"

@@ -12,6 +12,7 @@ import { toast } from 'react-toastify'
 import Map from '../components/Map'
 import { SocketContext } from '../context/SocketContext'
 import { useSelector } from 'react-redux'
+import { SiOpenstreetmap } from 'react-icons/si'
 
 const CaptainRiding = () => {
   const [finishRidePanel, setFinishRidePanel] = useState(false)
@@ -154,7 +155,7 @@ const CaptainRiding = () => {
       )
 
       if (res.data.success) {
-           setRideData(res.data.ride)
+        setRideData(res.data.ride)
         toast.success("Cash payment confirmed!")
       }
     } catch (error) {
@@ -166,28 +167,28 @@ const CaptainRiding = () => {
       )
     }
   }
-  
-useEffect(() => {
+
+  useEffect(() => {
     const handleOnlinePaymentReceived = (data) => {
-        console.log("Online payment received:", data);
+      console.log("Online payment received:", data);
 
-        setRideData(data);
+      setRideData(data);
 
-        toast.success("Payment received successfully!");
+      toast.success("Payment received successfully!");
     };
 
     socket.on(
-        "online-payment-received",
-        handleOnlinePaymentReceived
+      "online-payment-received",
+      handleOnlinePaymentReceived
     );
 
     return () => {
-        socket.off(
-            "online-payment-received",
-            handleOnlinePaymentReceived
-        );
+      socket.off(
+        "online-payment-received",
+        handleOnlinePaymentReceived
+      );
     };
-}, [socket]);
+  }, [socket]);
 
   return (
     <div className='h-dvh'>
@@ -208,11 +209,12 @@ useEffect(() => {
             heading={captainLocation.heading}
           />
         ) : (
-          <img
-            className="h-full w-full object-cover"
-            src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d"
-            alt=""
-          />
+          <div className='relative h-full  w-full'>
+            <img className='h-full w-full object-cover' src="https://preview.redd.it/ubers-car-animations-look-3d-but-its-actually-a-smart-v0-xer1e5ww0wcf1.jpeg?auto=webp&s=b85125fb5b9abe3b6e8fa38c0d4e424ffe9d842d" alt="" />
+            <div className='absolute inset-0 bg-gray-700 flex justify-center items-center opacity-30'>
+              < SiOpenstreetmap className='absolute top-40 size-20 text-gray-100 animate-pulse' />
+            </div>
+          </div>
         )}
       </div>
 

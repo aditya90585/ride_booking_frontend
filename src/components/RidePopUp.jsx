@@ -1,8 +1,8 @@
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import React from 'react'
 import { FaLocationCrosshairs, FaMapLocationDot, FaRupeeSign } from 'react-icons/fa6'
 
-const RidePopUp = ({ setRidePopUpPanel, ride, confirmRide }) => {
+const RidePopUp = ({ setRidePopUpPanel, ride, confirmRide, confirmRideLoading }) => {
     return (
         <div>
             <span onClick={() => {
@@ -39,15 +39,19 @@ const RidePopUp = ({ setRidePopUpPanel, ride, confirmRide }) => {
                         <FaRupeeSign />
                         <div>
                             <h3 className='text-lg font-medium'>₹{ride?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'>
+                                {ride?.paymentMethod === "cash"
+                                    ? "Cash"
+                                    : "Online"}
+                            </p>
                         </div>
                     </div>
                 </div>
                 <div className='flex justify-center items-center w-full gap-x-2'>
                     <button onClick={() => {
                         confirmRide()
-                    }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Accept</button>
-                    <button onClick={() => {
+                    }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg flex justify-center items-center'>{confirmRideLoading ? <Loader2 className='animate-spin h-full' /> : "Accept"}</button>
+                    <button disabled={confirmRideLoading} onClick={() => {
                         setRidePopUpPanel(false)
                     }} className='w-full mt-5 bg-red-500 text-white font-semibold p-2 rounded-lg'>Ignore</button>
                 </div>
