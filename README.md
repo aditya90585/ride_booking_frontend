@@ -180,22 +180,12 @@ The Vite development server will print the local URL in the terminal.
 
 The backend is maintained separately. Add the repository URL here:
 
-**Wayfare backend:** `[Backend repository link](https://github.com/aditya90585/wayfare-backend)`
+**Wayfare backend:** [https://github.com/aditya90585/wayfare-backend](https://github.com/aditya90585/wayfare-backend)
 
 ## Live Demo
 
 [https://wayfarerides.vercel.app](https://wayfarerides.vercel.app)
 
-## Screenshots
-
-Screenshots can be added here as the project presentation is finalized.
-
-| View | Screenshot |
-| --- | --- |
-| Landing page | `<!-- Add screenshot: docs/screenshots/landing.png -->` |
-| Rider booking flow | `<!-- Add screenshot: docs/screenshots/rider-booking.png -->` |
-| Captain dashboard | `<!-- Add screenshot: docs/screenshots/captain-dashboard.png -->` |
-| Live ride view | `<!-- Add screenshot: docs/screenshots/live-ride.png -->` |
 
 ## Future Improvements
 
