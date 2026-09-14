@@ -145,54 +145,54 @@ const Riding = () => {
                 order_id: orderId,
 
                 handler: async function (paymentResponse) {
-                    // try {
-                    //     console.log(
-                    //         "Payment Response:",
-                    //         paymentResponse
-                    //     );
+                    try {
+                        console.log(
+                            "Payment Response:",
+                            paymentResponse
+                        );
 
-                    //     const response =
-                    //         await axiosInstance.post(
-                    //             "/payment/verify",
-                    //             {
-                    //                 razorpay_order_id:
-                    //                     paymentResponse.razorpay_order_id,
+                        const response =
+                            await axiosInstance.post(
+                                "/payment/verify",
+                                {
+                                    razorpay_order_id:
+                                        paymentResponse.razorpay_order_id,
 
-                    //                 razorpay_payment_id:
-                    //                     paymentResponse.razorpay_payment_id,
+                                    razorpay_payment_id:
+                                        paymentResponse.razorpay_payment_id,
 
-                    //                 razorpay_signature:
-                    //                     paymentResponse.razorpay_signature
-                    //             }
-                    //         );
+                                    razorpay_signature:
+                                        paymentResponse.razorpay_signature
+                                }
+                            );
 
-                    //     console.log(
-                    //         "Verification response:",
-                    //         response.data
-                    //     );
+                        console.log(
+                            "Verification response:",
+                            response.data
+                        );
 
-                    //     if (response.data.success) {
-                    //         setPaymentState("success");
+                        if (response.data.success) {
+                            setPaymentState("success");
 
-                    //         toast.success(
-                    //             "Payment successful!"
-                    //         );
-                    //     }
+                            toast.success(
+                                "Payment successful!"
+                            );
+                        }
 
-                    // } catch (error) {
-                    //     console.error(
-                    //         "Payment verification error:",
-                    //         error
-                    //     );
+                    } catch (error) {
+                        console.error(
+                            "Payment verification error:",
+                            error
+                        );
 
-                    //     setPaymentState("failed");
+                        setPaymentState("failed");
 
-                    //     toast.error(
-                    //         error.response?.data?.message ||
-                    //         "Payment verification failed"
-                    //     );
-                    // }
-                    console.log("done")
+                        toast.error(
+                            error.response?.data?.message ||
+                            "Payment verification failed"
+                        );
+                    }
+
                 },
 
                 theme: {
